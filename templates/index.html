@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HeartGuard AI | Risk Predictor</title>
+    <title>HeartGuard | Heart Attack Risk Predictor</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
@@ -12,8 +12,9 @@
             --primary: #2563eb;
             --primary-dark: #1e40af;
             --secondary: #64748b;
-            --bg-color: #f1f5f9;
-            --card-bg: #ffffff;
+            /* --bg-color removed as we are using an image now */
+            /* Making the card slightly transparent white for a modern look */
+            --card-bg: rgba(255, 255, 255, 0.97); 
             --danger: #ef4444;
             --success: #22c55e;
         }
@@ -26,20 +27,34 @@
 
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: var(--bg-color);
             color: #1e293b;
             display: flex;
             justify-content: center;
             min-height: 100vh;
             padding: 40px 20px;
+
+            /* --- BACKGROUND IMAGE SETUP --- */
+            /* We use a linear-gradient to add a dark overlay so the text pops */
+            background-image: linear-gradient(rgba(0, 0, 20, 0.7), rgba(0, 0, 20, 0.7)),
+                              url('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=2072&auto=format&fit=crop');
+            
+            /* Ensures the image covers the whole screen evenly */
+            background-size: cover;
+            /* Centers the image */
+            background-position: center;
+            /* Keeps the background still when scrolling */
+            background-attachment: fixed;
+            background-repeat: no-repeat;
         }
 
         .main-container {
             width: 100%;
             max-width: 800px;
             background: var(--card-bg);
+            /* Added a backdrop filter for a frosted glass effect (optional) */
+            backdrop-filter: blur(10px); 
             border-radius: 20px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.2);
             overflow: hidden;
             animation: slideUp 0.6s ease-out;
         }
@@ -350,6 +365,9 @@
             };
 
             try {
+                // IMPORTANT: If testing locally without running Python, 
+                // switch this URL to a mock api or handle the error gracefully.
+                // For now, it points to localhost Flask server.
                 const response = await fetch('http://127.0.0.1:5000/predict', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -381,7 +399,7 @@
                 resultDiv.style.display = 'block';
                 resultDiv.className = "danger";
                 resultTitle.textContent = "Connection Error";
-                resultDesc.textContent = "Could not connect to the analysis server. Is Python running?";
+                resultDesc.textContent = "Could not connect to the analysis server. Please ensure the Python Flask backend is running.";
             } finally {
                 // Reset button
                 btn.innerHTML = originalBtnText;
