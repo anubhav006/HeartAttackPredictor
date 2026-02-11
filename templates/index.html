@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Attack Predictor</title>
+    <style>
+        /* Internal CSS */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box; /* Ensures padding doesn't affect width */
+            font-size: 1rem;
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #ff6b81;
+        }
+
+        #result {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .danger {
+            background-color: #ffe0e0;
+            color: #d63031;
+        }
+
+        .safe {
+            background-color: #e0ffe0;
+            color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Heart Attack Prediction</h2>
+    <form id="predictionForm">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Age</label>
+                <input type="number" id="age" required>
+            </div>
+            <div class="form-group">
+                <label>Sex (1=Male, 0=Female)</label>
+                <select id="sex">
+                    <option value="1">Male</option>
+                    <option value="0">Female</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Chest Pain Type (0-3)</label>
+                <input type="number" id="cp" min="0" max="3" required>
+            </div>
+            <div class="form-group">
+                <label>Resting BP (mm Hg)</label>
+                <input type="number" id="trestbps" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Cholesterol (mg/dl)</label>
+                <input type="number" id="chol" required>
+            </div>
+            <div class="form-group">
+                <label>Fasting BS > 120 (1=True)</label>
+                <select id="fbs">
+                    <option value="0">False</option>
+                    <option value="1">True</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Resting ECG (0-2)</label>
+                <input type="number" id="restecg" min="0" max="2" value="0">
+            </div>
+            <div class="form-group">
+                <label>Max Heart Rate</label>
+                <input type="number" id="thalach" required>
+            </div>
+
+            <div class="form-group">
+                <label>Exercise Angina (1=Yes)</label>
+                <select id="exang">
+                    <option value="0">No</option>
+                    <option value="1">Yes</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Oldpeak (ST depression)</label>
+                <input type="number" step="0.1" id="oldpeak" value="0">
+            </div>
+
+            <div class="form-group">
+                <label>Slope (0-2)</label>
+                <input type="number" id="slope" min="0" max="2" value="1">
+            </div>
+            <div class="form-group">
+                <label>Major Vessels (0-4)</label>
+                <input type="number" id="ca" min="0" max="4" value="0">
+            </div>
+            
+            <div class="form-group full-width">
+                <label>Thalassemia (0-3)</label>
+                <input type="number" id="thal" min="0" max="3" value="2">
+            </div>
+        </div>
+
+        <button type="submit">Predict Risk</button>
+    </form>
+
+    <div id="result"></div>
+</div>
+
+<script>
+    document.getElementById('predictionForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // Collect form data
+        const formData = {
+            age: document.getElementById('age').value,
+            sex: document.getElementById('sex').value,
+            cp: document.getElementById('cp').value,
+            trestbps: document.getElementById('trestbps').value,
+            chol: document.getElementById('chol').value,
+            fbs: document.getElementById('fbs').value,
+            restecg: document.getElementById('restecg').value,
+            thalach: document.getElementById('thalach').value,
+            exang: document.getElementById('exang').value,
+            oldpeak: document.getElementById('oldpeak').value,
+            slope: document.getElementById('slope').value,
+            ca: document.getElementById('ca').value,
+            thal: document.getElementById('thal').value
+        };
+
+        const resultDiv = document.getElementById('result');
+        resultDiv.style.display = 'block';
+        resultDiv.textContent = "Analyzing...";
+        resultDiv.className = "";
+
+        try {
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+
+            const data = await response.json();
+            
+            resultDiv.textContent = data.prediction_text;
+            
+            if (data.prediction_text.includes("High Risk")) {
+                resultDiv.className = "danger";
+            } else {
+                resultDiv.className = "safe";
+            }
+        } catch (error) {
+            resultDiv.textContent = "Error connecting to server.";
+            resultDiv.className = "danger";
+        }
+    });
+</script>
+
+</body>
+</html>
