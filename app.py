@@ -8,12 +8,12 @@ import datetime
 import os
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key_here'  # Change this to a random string for security
+app.secret_key = 'super_secret_key_change_this'  # Change for security
 
 # --- LOGIN SETUP ---
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'login' # Redirect here if user isn't logged in
+login_manager.login_view = 'login'
 
 # Load Model
 try:
@@ -29,7 +29,7 @@ def init_db():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     
-    # 1. Create Users Table
+    # 1. Users Table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,7 +38,7 @@ def init_db():
         )
     ''')
 
-    # 2. Create Predictions Table (Added user_id column)
+    # 2. Predictions Table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS predictions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -127,6 +127,22 @@ def logout():
 def home():
     return render_template('index.html', name=current_user.username)
 
+@app.route('/profile')
+@login_required
+def profile():
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    # Fetch history for current user only
+    cursor.execute('''
+        SELECT timestamp, prediction_result, age, trestbps, chol 
+        FROM predictions 
+        WHERE user_id = ? 
+        ORDER BY timestamp DESC
+    ''', (current_user.id,))
+    history = cursor.fetchall()
+    conn.close()
+    return render_template('profile.html', name=current_user.username, history=history)
+
 @app.route('/predict', methods=['POST'])
 @login_required
 def predict():
@@ -143,7 +159,7 @@ def predict():
         prediction = model.predict([np.array(features)])
         result_text = "High Risk" if prediction[0] == 1 else "Low Risk"
 
-        # Save to DB with current_user.id
+        # Save to DB
         conn = sqlite3.connect(DB_NAME)
         cursor = conn.cursor()
         cursor.execute('''
