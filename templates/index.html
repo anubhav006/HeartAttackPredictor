@@ -38,12 +38,13 @@
         }
 
         .header { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); padding: 30px; text-align: center; color: white; }
-        .form-container { padding: 30px; }
+        .form-container { padding: 30px; box-sizing: border-box; }
         .grid-row { display: grid; gap: 15px; grid-template-columns: 1fr; }
+        .grid-row > div { display: flex; flex-direction: column; }
         .section-title { color: var(--primary); font-size: 0.9rem; font-weight: 700; margin: 25px 0 10px 0; border-bottom: 2px solid #e2e8f0; text-transform: uppercase; }
         label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; color: #475569; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; background: #f8fafc; font-size: 1rem; font-family: inherit; }
-        button { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 25px; transition: 0.3s; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; background: #f8fafc; font-size: 1rem; font-family: inherit; box-sizing: border-box; }
+        button { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 25px; transition: 0.3s; box-sizing: border-box; }
         button:hover { background: var(--primary-dark); transform: translateY(-2px); }
 
         @media (min-width: 600px) { .grid-row { grid-template-columns: 1fr 1fr; } .full-width { grid-column: span 2; } }
