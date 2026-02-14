@@ -8,28 +8,24 @@ import datetime
 import os
 
 app = Flask(__name__)
-app.secret_key = 'super_secret_key_change_this'  # Change for security
+app.secret_key = 'your_secret_key_change_this_to_something_random' 
 
-# --- LOGIN SETUP ---
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-# Load Model
 try:
     model = pickle.load(open('heart_attack_model.pkl', 'rb'))
 except FileNotFoundError:
-    print("Error: Model file not found. Run model.py first.")
+    print("Error: 'heart_attack_model.pkl' not found.")
     exit()
 
-# --- DATABASE SETUP ---
 DB_NAME = "heart_data.db"
 
 def init_db():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     
-    # 1. Users Table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,12 +34,14 @@ def init_db():
         )
     ''')
 
-    # 2. Predictions Table
+    # UPDATED: Added patient_name and address columns
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS predictions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER,
             timestamp TEXT,
+            patient_name TEXT,
+            address TEXT,
             age INTEGER, sex INTEGER, cp INTEGER, trestbps INTEGER,
             chol INTEGER, fbs INTEGER, restecg INTEGER, thalach INTEGER,
             exang INTEGER, oldpeak REAL, slope INTEGER, ca INTEGER,
@@ -57,7 +55,6 @@ def init_db():
 if not os.path.exists(DB_NAME):
     init_db()
 
-# --- USER CLASS ---
 class User(UserMixin):
     def __init__(self, id, username, password_hash):
         self.id = id
@@ -74,8 +71,6 @@ def load_user(user_id):
     if user_data:
         return User(id=user_data[0], username=user_data[1], password_hash=user_data[2])
     return None
-
-# --- ROUTES ---
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -110,7 +105,7 @@ def register():
         cursor.execute("INSERT INTO users (username, password_hash) VALUES (?, ?)", (username, hashed_password))
         conn.commit()
         conn.close()
-        flash('Account created! Please log in.')
+        flash('Account created successfully! Please log in.')
     except sqlite3.IntegrityError:
         flash('Username already exists.')
     
@@ -132,9 +127,9 @@ def home():
 def profile():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
-    # Fetch history for current user only
+    # UPDATED: Fetch patient_name and address
     cursor.execute('''
-        SELECT timestamp, prediction_result, age, trestbps, chol 
+        SELECT timestamp, patient_name, prediction_result, age, trestbps, chol, address 
         FROM predictions 
         WHERE user_id = ? 
         ORDER BY timestamp DESC
@@ -148,6 +143,7 @@ def profile():
 def predict():
     try:
         data = request.get_json()
+        
         features = [
             float(data['age']), float(data['sex']), float(data['cp']),
             float(data['trestbps']), float(data['chol']), float(data['fbs']),
@@ -159,16 +155,19 @@ def predict():
         prediction = model.predict([np.array(features)])
         result_text = "High Risk" if prediction[0] == 1 else "Low Risk"
 
-        # Save to DB
+        # UPDATED: Save patient_name and address to DB
         conn = sqlite3.connect(DB_NAME)
         cursor = conn.cursor()
         cursor.execute('''
             INSERT INTO predictions (
-                user_id, timestamp, age, sex, cp, trestbps, chol, fbs, restecg, 
-                thalach, exang, oldpeak, slope, ca, thal, prediction_result
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                user_id, timestamp, patient_name, address, age, sex, cp, trestbps, 
+                chol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal, prediction_result
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
-            current_user.id, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            current_user.id, 
+            datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            data['patient_name'],  # New Field
+            data['address'],       # New Field
             data['age'], data['sex'], data['cp'], data['trestbps'], 
             data['chol'], data['fbs'], data['restecg'], data['thalach'], 
             data['exang'], data['oldpeak'], data['slope'], data['ca'], 

@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HeartGuard AI | Analysis</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>HeartGuard AI | Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
@@ -12,29 +11,41 @@
             --primary: #2563eb; --primary-dark: #1e40af; --card-bg: rgba(255, 255, 255, 0.98); 
             --danger: #ef4444; --warning: #f59e0b; --success: #22c55e;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
+
         body {
-            font-family: 'Poppins', sans-serif; color: #1e293b;
-            background-image: linear-gradient(rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.9)),
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #1e293b;
+            background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)),
                               url('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=2072');
             background-size: cover; background-position: center; background-attachment: fixed;
             min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px;
         }
 
+        nav {
+            position: absolute; top: 0; left: 0; right: 0; padding: 20px 30px; 
+            display: flex; justify-content: space-between; align-items: center; z-index: 10;
+        }
+        .nav-links a {
+            color: white; text-decoration: none; background: rgba(255,255,255,0.15); 
+            padding: 8px 16px; border-radius: 20px; transition: 0.3s; margin-left: 10px; font-size: 0.9rem;
+        }
+        .nav-links a:hover { background: rgba(255,255,255,0.25); }
+
         .main-container {
             width: 100%; max-width: 900px; background: var(--card-bg);
-            border-radius: 20px; overflow: hidden; animation: slideUp 0.5s ease-out; margin-top: 50px;
+            border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            overflow: hidden; margin-top: 60px; animation: slideUp 0.5s ease-out;
         }
 
         .header { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); padding: 30px; text-align: center; color: white; }
         .form-container { padding: 30px; }
         .grid-row { display: grid; gap: 15px; grid-template-columns: 1fr; }
-        .section-title { color: var(--primary); font-size: 0.9rem; font-weight: 700; margin: 25px 0 10px 0; border-bottom: 2px solid #e2e8f0; }
-        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; background: #f8fafc; font-family: inherit; }
-        button { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 20px; }
-        
+        .section-title { color: var(--primary); font-size: 0.9rem; font-weight: 700; margin: 25px 0 10px 0; border-bottom: 2px solid #e2e8f0; text-transform: uppercase; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; color: #475569; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; background: #f8fafc; font-size: 1rem; font-family: inherit; }
+        button { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 25px; transition: 0.3s; }
+        button:hover { background: var(--primary-dark); transform: translateY(-2px); }
+
         @media (min-width: 600px) { .grid-row { grid-template-columns: 1fr 1fr; } .full-width { grid-column: span 2; } }
         
         #result-section { display: none; margin-top: 30px; }
@@ -42,56 +53,63 @@
         .high-risk { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
         .low-risk { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
         .tips-container { background: #f1f5f9; padding: 20px; border-radius: 12px; }
-        .tip-item { display: flex; margin-bottom: 10px; } .tip-item i { margin-right: 10px; margin-top: 4px; }
+        .tip-item { display: flex; margin-bottom: 10px; align-items: flex-start; } .tip-item i { margin-right: 10px; margin-top: 4px; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <nav style="position: absolute; top: 0; left: 0; right: 0; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; z-index: 10;">
-        <div style="color: white; font-weight: bold; font-size: 1.2rem;">
-            <i class="fas fa-heartbeat"></i> HeartGuard
-        </div>
-        <div style="display: flex; gap: 15px;">
-            <a href="/profile" style="color: white; text-decoration: none; background: rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 20px; transition: 0.3s; backdrop-filter: blur(5px);">
-                <i class="fas fa-user"></i> My Profile
-            </a>
-            <a href="/logout" style="color: #ffcccc; text-decoration: none; border: 1px solid #ffcccc; padding: 8px 16px; border-radius: 20px; transition: 0.3s;">
-                Logout
-            </a>
+    <nav>
+        <div style="color: white; font-weight: bold; font-size: 1.3rem;"> <i class="fas fa-heartbeat"></i> HeartGuard </div>
+        <div class="nav-links">
+            <a href="/profile"><i class="fas fa-user"></i> My Profile</a>
+            <a href="/logout" style="border: 1px solid #ffcccc; color: #ffcccc; background: transparent;">Logout</a>
         </div>
     </nav>
 
     <div class="main-container">
         <div class="header">
             <i class="fas fa-heart-pulse fa-3x" style="margin-bottom:10px;"></i>
-            <h1>HeartGuard AI</h1>
-            <p>Clinical Risk Analysis</p>
+            <h1>Clinical Risk Analysis</h1>
+            <p>Welcome, {{ name }}</p>
         </div>
 
         <form id="predictionForm" class="form-container">
-            <div class="section-title">1. Patient Profile</div>
+            
+            <div class="section-title">1. Patient Identification</div>
             <div class="grid-row">
-                <div><label>Age</label><input type="number" id="age" placeholder="55" required></div>
+                <div class="full-width">
+                    <label>Patient Name</label>
+                    <input type="text" id="patient_name" placeholder="Enter Full Name" required>
+                </div>
+                <div class="full-width">
+                    <label>Address / Location</label>
+                    <input type="text" id="address" placeholder="Enter Address" required>
+                </div>
+            </div>
+
+            <div class="section-title">2. Clinical Profile</div>
+            <div class="grid-row">
+                <div><label>Age</label><input type="number" id="age" placeholder="e.g. 55" required></div>
                 <div><label>Sex</label><select id="sex"><option value="1">Male</option><option value="0">Female</option></select></div>
             </div>
 
-            <div class="section-title">2. Vitals</div>
+            <div class="section-title">3. Vitals</div>
             <div class="grid-row">
-                <div><label>BP (mm Hg)</label><input type="number" id="trestbps" placeholder="120" required></div>
-                <div><label>Cholesterol</label><input type="number" id="chol" placeholder="200" required></div>
+                <div><label>Resting BP (mm Hg)</label><input type="number" id="trestbps" placeholder="120" required></div>
+                <div><label>Cholesterol (mg/dl)</label><input type="number" id="chol" placeholder="200" required></div>
                 <div><label>Max Heart Rate</label><input type="number" id="thalach" placeholder="150" required></div>
                 <div><label>Blood Sugar > 120?</label><select id="fbs"><option value="0">No</option><option value="1">Yes</option></select></div>
             </div>
 
-            <div class="section-title">3. Clinical Tests</div>
+            <div class="section-title">4. Clinical Tests</div>
             <div class="grid-row">
-                <div class="full-width"><label>Chest Pain</label><select id="cp"><option value="0">Typical Angina</option><option value="1">Atypical Angina</option><option value="2">Non-Anginal</option><option value="3">Asymptomatic</option></select></div>
-                <div><label>Ex. Angina</label><select id="exang"><option value="0">No</option><option value="1">Yes</option></select></div>
+                <div class="full-width"><label>Chest Pain Type</label><select id="cp"><option value="0">Typical Angina</option><option value="1">Atypical Angina</option><option value="2">Non-Anginal Pain</option><option value="3">Asymptomatic</option></select></div>
+                <div><label>Exercise Induced Angina?</label><select id="exang"><option value="0">No</option><option value="1">Yes</option></select></div>
                 <div><label>Resting ECG</label><select id="restecg"><option value="0">Normal</option><option value="1">ST-T Abnormality</option><option value="2">LV Hypertrophy</option></select></div>
-                <div><label>ST Depression</label><input type="number" step="0.1" id="oldpeak" value="0"></div>
+                <div><label>ST Depression (Oldpeak)</label><input type="number" step="0.1" id="oldpeak" value="0"></div>
                 <div><label>Slope</label><select id="slope"><option value="0">Upsloping</option><option value="1">Flat</option><option value="2">Downsloping</option></select></div>
-                <div><label>Major Vessels</label><input type="number" id="ca" min="0" max="4" value="0"></div>
+                <div><label>Major Vessels (0-4)</label><input type="number" id="ca" min="0" max="4" value="0"></div>
                 <div><label>Thalassemia</label><select id="thal"><option value="1">Normal</option><option value="2">Fixed Defect</option><option value="3">Reversable Defect</option></select></div>
             </div>
 
@@ -99,8 +117,13 @@
         </form>
 
         <div id="result-section">
-            <div id="risk-card" class="risk-card"><h2 id="prediction-title"></h2><p id="prediction-desc"></p></div>
-            <div class="tips-container"><div id="health-tips-list"></div></div>
+            <div id="risk-card" class="risk-card">
+                <h2 id="prediction-title"></h2>
+                <p id="prediction-desc"></p>
+            </div>
+            <div class="tips-container">
+                <div id="health-tips-list"></div>
+            </div>
         </div>
     </div>
 
@@ -109,9 +132,15 @@
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
             const resultSection = document.getElementById('result-section');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...'; btn.disabled = true;
+            
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+            btn.disabled = true;
 
             const formData = {
+                // NEW FIELDS
+                patient_name: document.getElementById('patient_name').value,
+                address: document.getElementById('address').value,
+                
                 age: document.getElementById('age').value, sex: document.getElementById('sex').value, cp: document.getElementById('cp').value,
                 trestbps: document.getElementById('trestbps').value, chol: document.getElementById('chol').value, fbs: document.getElementById('fbs').value,
                 restecg: document.getElementById('restecg').value, thalach: document.getElementById('thalach').value, exang: document.getElementById('exang').value,
@@ -121,23 +150,25 @@
             try {
                 const response = await fetch('/predict', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) });
                 const data = await response.json();
+                
                 resultSection.style.display = 'block';
 
                 if (data.prediction_text.includes("High Risk")) {
                     document.getElementById('risk-card').className = "risk-card high-risk";
                     document.getElementById('prediction-title').innerText = "High Risk Detected";
-                    document.getElementById('prediction-desc').innerText = "Consult a cardiologist.";
+                    document.getElementById('prediction-desc').innerText = "Consult a cardiologist immediately.";
                 } else {
                     document.getElementById('risk-card').className = "risk-card low-risk";
                     document.getElementById('prediction-title').innerText = "Low Risk / Normal";
-                    document.getElementById('prediction-desc').innerText = "No significant patterns found.";
+                    document.getElementById('prediction-desc').innerText = "No significant heart disease patterns found.";
                 }
-                
+
                 let tips = '';
-                if(formData.trestbps > 130) tips += `<div class="tip-item"><i class="fas fa-exclamation-circle" style="color:#f59e0b"></i> High BP detected (${formData.trestbps})</div>`;
-                if(formData.chol > 200) tips += `<div class="tip-item"><i class="fas fa-hamburger" style="color:#f59e0b"></i> Cholesterol is high (${formData.chol})</div>`;
-                document.getElementById('health-tips-list').innerHTML = tips || '<div class="tip-item"><i class="fas fa-check" style="color:#22c55e"></i> Vitals look normal.</div>';
+                if(formData.trestbps > 130) tips += `<div class="tip-item"><i class="fas fa-exclamation-circle" style="color:#f59e0b"></i> <span>BP is elevated (${formData.trestbps}). Ideal is <120.</span></div>`;
+                if(formData.chol > 200) tips += `<div class="tip-item"><i class="fas fa-hamburger" style="color:#f59e0b"></i> <span>Cholesterol is high (${formData.chol}). Ideal is <200.</span></div>`;
+                if(!tips) tips = `<div class="tip-item"><i class="fas fa-check" style="color:#22c55e"></i> <span>Your vitals (BP, Cholesterol) are within healthy ranges.</span></div>`;
                 
+                document.getElementById('health-tips-list').innerHTML = tips;
                 resultSection.scrollIntoView({ behavior: 'smooth' });
             } catch (error) { alert("Error connecting to server."); } finally { btn.innerHTML = 'Analyze Risk'; btn.disabled = false; }
         });
