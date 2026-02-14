@@ -139,6 +139,14 @@
     </style>
 </head>
 <body>
+    <nav style="position: absolute; top: 0; left: 0; right: 0; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; color: white; z-index: 10;">
+    <div style="font-weight: bold; font-size: 1.1rem;">
+        <i class="fas fa-user-circle"></i> Hello, {{ name }}
+    </div>
+    <a href="/logout" style="color: white; text-decoration: none; border: 1px solid white; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; transition: 0.3s;">
+        Logout <i class="fas fa-sign-out-alt"></i>
+    </a>
+</nav>
 
 <div class="main-container">
     <div class="header">
