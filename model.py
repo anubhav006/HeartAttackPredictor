@@ -2,46 +2,55 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report
 import pickle
+import os
 
-# 1. Create a Synthetic Dataset (For demonstration)
-# In a real scenario, you would load this: df = pd.read_csv('heart.csv')
-np.random.seed(42)
-n_samples = 1000
+# 1. Load the Real Dataset
+csv_file = 'heart.csv'
 
-data = {
-    'age': np.random.randint(29, 78, n_samples),
-    'sex': np.random.randint(0, 2, n_samples),
-    'cp': np.random.randint(0, 4, n_samples),          # Chest Pain Type
-    'trestbps': np.random.randint(94, 201, n_samples), # Resting Blood Pressure
-    'chol': np.random.randint(126, 565, n_samples),    # Cholesterol
-    'fbs': np.random.randint(0, 2, n_samples),         # Fasting Blood Sugar
-    'restecg': np.random.randint(0, 3, n_samples),     # Resting ECG
-    'thalach': np.random.randint(71, 203, n_samples),  # Max Heart Rate
-    'exang': np.random.randint(0, 2, n_samples),       # Exercise Induced Angina
-    'oldpeak': np.random.uniform(0.0, 6.2, n_samples), # ST Depression
-    'slope': np.random.randint(0, 3, n_samples),       # Slope of peak exercise ST
-    'ca': np.random.randint(0, 5, n_samples),          # Major vessels colored by flourosopy
-    'thal': np.random.randint(0, 4, n_samples),        # Thalassemia
-    'target': np.random.randint(0, 2, n_samples)       # 0 = No Disease, 1 = Disease
-}
+if not os.path.exists(csv_file):
+    print("   Error: 'heart.csv' not found.")
+    print("   Please download it from Kaggle and put it in this folder.")
+    exit()
 
-df = pd.DataFrame(data)
+df = pd.read_csv(csv_file)
+print(f"✅ Data Loaded: {len(df)} patient records found.")
 
-# 2. Preprocessing
-X = df.drop('target', axis=1)
-y = df['target']
+# 2. Rename columns to match our project (if needed)
+# The standard UCI names are usually: 
+# age, sex, cp, trestbps, chol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal, target
+# We ensure the column names match what our app expects.
+df.columns = ['age', 'sex', 'cp', 'trestbps', 'chol', 'fbs', 'restecg', 
+              'thalach', 'exang', 'oldpeak', 'slope', 'ca', 'thal', 'target']
 
-# Split data
+# 3. Preprocessing
+# Check for any missing values and fill them (rare in this specific dataset but good practice)
+df.fillna(df.mean(), inplace=True)
+
+X = df.drop('target', axis=1) # Features (all columns except target)
+y = df['target']              # Target variable (0 = Healthy, 1 = Heart Disease)
+
+# 4. Split Data (80% for training, 20% for testing)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# 3. Train Model
-model = RandomForestClassifier(n_estimators=100, random_state=42)
+# 5. Train Model
+# We increase n_estimators for better performance on real data
+model = RandomForestClassifier(n_estimators=200, random_state=42)
 model.fit(X_train, y_train)
 
-# 4. Save the Model
+# 6. Evaluate Accuracy
+predictions = model.predict(X_test)
+accuracy = accuracy_score(y_test, predictions)
+
+print("------------------------------------------------")
+print(f" Model Trained Successfully!")
+print(f" Real-World Accuracy: {accuracy * 100:.2f}%")
+print("------------------------------------------------")
+print("Classification Report:")
+print(classification_report(y_test, predictions))
+
+# 7. Save the Model
 filename = 'heart_attack_model.pkl'
 pickle.dump(model, open(filename, 'wb'))
-
-print(f"Model trained and saved as {filename}")
-print(f"Accuracy on dummy test set: {model.score(X_test, y_test) * 100:.2f}%")
+print(f" Model saved as '{filename}'")
