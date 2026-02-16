@@ -32,13 +32,13 @@ def init_db():
             password_hash TEXT NOT NULL
         )
     ''')
+    # UPDATED: Removed 'address' column
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS predictions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER,
             timestamp TEXT,
             patient_name TEXT,
-            address TEXT,
             age INTEGER, sex INTEGER, cp INTEGER, trestbps INTEGER,
             chol INTEGER, fbs INTEGER, restecg INTEGER, thalach INTEGER,
             exang INTEGER, oldpeak REAL, slope INTEGER, ca INTEGER,
@@ -68,8 +68,6 @@ def load_user(user_id):
     if user_data:
         return User(id=user_data[0], username=user_data[1], password_hash=user_data[2])
     return None
-
-# --- ROUTES ---
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -116,7 +114,6 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
-# UPDATED: No login required for Guest Access
 @app.route('/')
 def home():
     if current_user.is_authenticated:
@@ -129,8 +126,9 @@ def home():
 def profile():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
+    # UPDATED: Removed 'address' from query
     cursor.execute('''
-        SELECT timestamp, patient_name, prediction_result, age, trestbps, chol, address 
+        SELECT timestamp, patient_name, prediction_result, age, trestbps, chol 
         FROM predictions 
         WHERE user_id = ? 
         ORDER BY timestamp DESC
@@ -139,7 +137,6 @@ def profile():
     conn.close()
     return render_template('profile.html', name=current_user.username, history=history)
 
-# UPDATED: Handles Guest predictions (doesn't save to DB)
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
@@ -156,20 +153,19 @@ def predict():
         prediction = model.predict([np.array(features)])
         result_text = "High Risk" if prediction[0] == 1 else "Low Risk"
 
-        # Only save to Database if User is Logged In
         if current_user.is_authenticated:
             conn = sqlite3.connect(DB_NAME)
             cursor = conn.cursor()
+            # UPDATED: Removed 'address' from INSERT
             cursor.execute('''
                 INSERT INTO predictions (
-                    user_id, timestamp, patient_name, address, age, sex, cp, trestbps, 
+                    user_id, timestamp, patient_name, age, sex, cp, trestbps, 
                     chol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal, prediction_result
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 current_user.id, 
                 datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 data['patient_name'],
-                data['address'],
                 data['age'], data['sex'], data['cp'], data['trestbps'], 
                 data['chol'], data['fbs'], data['restecg'], data['thalach'], 
                 data['exang'], data['oldpeak'], data['slope'], data['ca'], 

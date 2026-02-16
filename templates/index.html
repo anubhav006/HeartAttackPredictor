@@ -16,34 +16,42 @@
         .nav-links a:hover { background: rgba(255,255,255,0.25); }
         .logout-btn { border: 1px solid #ffcccc !important; color: #ffcccc !important; background: transparent !important; }
 
-        /* Main Container */
         .main-container { width: 100%; max-width: 900px; background: var(--card-bg); border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); overflow: hidden; margin-top: 60px; animation: slideUp 0.5s ease-out; }
         .header { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); padding: 30px; text-align: center; color: white; }
         .form-container { padding: 30px; }
-        .grid-row { display: grid; gap: 15px; grid-template-columns: 1fr; }
-        .section-title { color: var(--primary); font-size: 0.9rem; font-weight: 700; margin: 25px 0 10px 0; border-bottom: 2px solid #e2e8f0; text-transform: uppercase; }
-        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; color: #475569; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; background: #f8fafc; font-size: 1rem; font-family: inherit; }
-        button { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 25px; transition: 0.3s; }
+        
+        /* IMPROVED GRID SYSTEM TO FIX OVERLAPPING */
+        .grid-row { 
+            display: grid; 
+            gap: 20px; /* More space between boxes */
+            grid-template-columns: 1fr; /* Default mobile view */
+        }
+        
+        .section-title { color: var(--primary); font-size: 0.9rem; font-weight: 700; margin: 30px 0 15px 0; border-bottom: 2px solid #e2e8f0; text-transform: uppercase; }
+        .section-title:first-child { margin-top: 0; }
+
+        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; color: #475569; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; background: #f8fafc; font-size: 1rem; font-family: inherit; box-sizing: border-box; } /* box-sizing ensures padding doesn't widen the element */
+        
+        button { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 30px; transition: 0.3s; }
         button:hover { background: var(--primary-dark); transform: translateY(-2px); }
         
-        @media (min-width: 600px) { .grid-row { grid-template-columns: 1fr 1fr; } .full-width { grid-column: span 2; } }
+        /* Desktop View: 2 Columns */
+        @media (min-width: 700px) { 
+            .grid-row { grid-template-columns: 1fr 1fr; } 
+            .full-width { grid-column: 1 / -1; } /* Spans entire width */
+        }
         
-        /* Modal (Popup) Styles */
+        /* Modal Styles */
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(5px); }
         .modal-content { background-color: #fff; margin: 5% auto; padding: 0; border-radius: 15px; width: 90%; max-width: 600px; box-shadow: 0 25px 50px rgba(0,0,0,0.3); animation: slideDown 0.3s ease; overflow: hidden; }
         .modal-header { background: #f8fafc; padding: 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
         .modal-header h2 { margin: 0; color: #333; font-size: 1.2rem; }
         .close-btn { color: #666; font-size: 1.5rem; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .close-btn:hover { color: #000; }
         .modal-body { padding: 20px; }
-
-        /* Reference Table Styles */
         .ref-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
         .ref-table th, .ref-table td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-        .ref-table th { background-color: #f1f5f9; color: #475569; font-weight: 600; }
         .status-safe { color: var(--success); font-weight: 600; }
-        .status-risk { color: var(--warning); font-weight: 600; }
         .status-danger { color: var(--danger); font-weight: 600; }
 
         #result-section { display: none; margin-top: 30px; }
@@ -63,7 +71,6 @@
         <div style="color: white; font-weight: bold; font-size: 1.3rem;"> <i class="fas fa-heartbeat"></i> HeartGuard </div>
         <div class="nav-links">
             <a onclick="openModal()"><i class="fas fa-file-medical"></i> Safety Guide</a>
-
             {% if current_user.is_authenticated %}
                 <a href="/profile"><i class="fas fa-user"></i> My Profile</a>
                 <a href="/logout" class="logout-btn">Logout</a>
@@ -81,37 +88,14 @@
             </div>
             <div class="modal-body">
                 <table class="ref-table">
-                    <thead>
-                        <tr>
-                            <th>Measurement</th>
-                            <th>Safe Range <i class="fas fa-check-circle status-safe"></i></th>
-                            <th>High Risk <i class="fas fa-exclamation-triangle status-danger"></i></th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Measurement</th><th>Safe Range <i class="fas fa-check-circle status-safe"></i></th><th>High Risk <i class="fas fa-exclamation-triangle status-danger"></i></th></tr></thead>
                     <tbody>
-                        <tr>
-                            <td><strong>Blood Pressure</strong> (Resting)</td>
-                            <td class="status-safe">Below 120 mm Hg</td>
-                            <td class="status-danger">Above 140 mm Hg</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Cholesterol</strong></td>
-                            <td class="status-safe">Below 200 mg/dl</td>
-                            <td class="status-danger">Above 240 mg/dl</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Fasting Blood Sugar</strong></td>
-                            <td class="status-safe">Below 100 mg/dl</td>
-                            <td class="status-danger">Above 126 mg/dl (Diabetes)</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Max Heart Rate</strong></td>
-                            <td class="status-safe">60 - 100 bpm (Resting)</td>
-                            <td class="status-danger">Irregular or >100 (Resting)</td>
-                        </tr>
+                        <tr><td><strong>Blood Pressure</strong></td><td class="status-safe">Below 120 mm Hg</td><td class="status-danger">Above 140 mm Hg</td></tr>
+                        <tr><td><strong>Cholesterol</strong></td><td class="status-safe">Below 200 mg/dl</td><td class="status-danger">Above 240 mg/dl</td></tr>
+                        <tr><td><strong>Fasting Blood Sugar</strong></td><td class="status-safe">Below 100 mg/dl</td><td class="status-danger">Above 126 mg/dl</td></tr>
+                        <tr><td><strong>Max Heart Rate</strong></td><td class="status-safe">60 - 100 bpm</td><td class="status-danger">Irregular or >100</td></tr>
                     </tbody>
                 </table>
-                <p style="font-size: 0.8rem; color: #666; margin-top: 15px; text-align: center;">* These are general reference values. Always consult a doctor for personal advice.</p>
             </div>
         </div>
     </div>
@@ -125,9 +109,12 @@
 
         <form id="predictionForm" class="form-container">
             <div class="section-title">1. Patient Identification</div>
+            
             <div class="grid-row">
-                <div class="full-width"><label>Patient Name</label><input type="text" id="patient_name" placeholder="Enter Full Name" required></div>
-                <div class="full-width"><label>Address / Location</label><input type="text" id="address" placeholder="Enter Address" required></div>
+                <div class="full-width">
+                    <label>Patient Name</label>
+                    <input type="text" id="patient_name" placeholder="Enter Full Name" required>
+                </div>
             </div>
 
             <div class="section-title">2. Clinical Profile</div>
@@ -181,18 +168,10 @@
     </div>
 
     <script>
-        // Modal Logic
         function openModal() { document.getElementById("referenceModal").style.display = "block"; }
         function closeModal() { document.getElementById("referenceModal").style.display = "none"; }
-        
-        // Close modal if clicking outside
-        window.onclick = function(event) {
-            if (event.target == document.getElementById("referenceModal")) {
-                closeModal();
-            }
-        }
+        window.onclick = function(event) { if (event.target == document.getElementById("referenceModal")) closeModal(); }
 
-        // Form Logic
         document.getElementById('predictionForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
@@ -201,7 +180,7 @@
 
             const formData = {
                 patient_name: document.getElementById('patient_name').value,
-                address: document.getElementById('address').value,
+                // ADDRESS REMOVED HERE
                 age: document.getElementById('age').value, sex: document.getElementById('sex').value, cp: document.getElementById('cp').value,
                 trestbps: document.getElementById('trestbps').value, chol: document.getElementById('chol').value, fbs: document.getElementById('fbs').value,
                 restecg: document.getElementById('restecg').value, thalach: document.getElementById('thalach').value, exang: document.getElementById('exang').value,
