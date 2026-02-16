@@ -25,7 +25,6 @@ DB_NAME = "heart_data.db"
 def init_db():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
-    
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -33,8 +32,6 @@ def init_db():
             password_hash TEXT NOT NULL
         )
     ''')
-
-    # UPDATED: Added patient_name and address columns
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS predictions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -72,6 +69,8 @@ def load_user(user_id):
         return User(id=user_data[0], username=user_data[1], password_hash=user_data[2])
     return None
 
+# --- ROUTES ---
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -105,7 +104,7 @@ def register():
         cursor.execute("INSERT INTO users (username, password_hash) VALUES (?, ?)", (username, hashed_password))
         conn.commit()
         conn.close()
-        flash('Account created successfully! Please log in.')
+        flash('Account created! Please log in.')
     except sqlite3.IntegrityError:
         flash('Username already exists.')
     
@@ -117,17 +116,19 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
+# UPDATED: No login required for Guest Access
 @app.route('/')
-@login_required
 def home():
-    return render_template('index.html', name=current_user.username)
+    if current_user.is_authenticated:
+        return render_template('index.html', name=current_user.username)
+    else:
+        return render_template('index.html', name="Guest")
 
 @app.route('/profile')
 @login_required
 def profile():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
-    # UPDATED: Fetch patient_name and address
     cursor.execute('''
         SELECT timestamp, patient_name, prediction_result, age, trestbps, chol, address 
         FROM predictions 
@@ -138,8 +139,8 @@ def profile():
     conn.close()
     return render_template('profile.html', name=current_user.username, history=history)
 
+# UPDATED: Handles Guest predictions (doesn't save to DB)
 @app.route('/predict', methods=['POST'])
-@login_required
 def predict():
     try:
         data = request.get_json()
@@ -155,26 +156,27 @@ def predict():
         prediction = model.predict([np.array(features)])
         result_text = "High Risk" if prediction[0] == 1 else "Low Risk"
 
-        # UPDATED: Save patient_name and address to DB
-        conn = sqlite3.connect(DB_NAME)
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO predictions (
-                user_id, timestamp, patient_name, address, age, sex, cp, trestbps, 
-                chol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal, prediction_result
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (
-            current_user.id, 
-            datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            data['patient_name'],  # New Field
-            data['address'],       # New Field
-            data['age'], data['sex'], data['cp'], data['trestbps'], 
-            data['chol'], data['fbs'], data['restecg'], data['thalach'], 
-            data['exang'], data['oldpeak'], data['slope'], data['ca'], 
-            data['thal'], result_text
-        ))
-        conn.commit()
-        conn.close()
+        # Only save to Database if User is Logged In
+        if current_user.is_authenticated:
+            conn = sqlite3.connect(DB_NAME)
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT INTO predictions (
+                    user_id, timestamp, patient_name, address, age, sex, cp, trestbps, 
+                    chol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal, prediction_result
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                current_user.id, 
+                datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                data['patient_name'],
+                data['address'],
+                data['age'], data['sex'], data['cp'], data['trestbps'], 
+                data['chol'], data['fbs'], data['restecg'], data['thalach'], 
+                data['exang'], data['oldpeak'], data['slope'], data['ca'], 
+                data['thal'], result_text
+            ))
+            conn.commit()
+            conn.close()
 
         return jsonify({'prediction_text': result_text})
 
