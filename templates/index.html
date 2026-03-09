@@ -3,166 +3,311 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HeartGuard | Dashboard</title>
+    <title>HeartGuard AI | Clinical Risk Analysis</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        :root { --primary: #2563eb; --primary-dark: #1e40af; --card-bg: rgba(255, 255, 255, 0.98); --danger: #ef4444; --warning: #f59e0b; --success: #22c55e; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1e293b; background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), url('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=2072'); background-size: cover; background-position: center; background-attachment: fixed; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        
-        nav { position: absolute; top: 0; left: 0; right: 0; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
-        .nav-links { display: flex; gap: 10px; align-items: center; }
-        .nav-links a { color: white; text-decoration: none; background: rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 20px; transition: 0.3s; font-size: 0.9rem; cursor: pointer; }
-        .nav-links a:hover { background: rgba(255,255,255,0.25); }
-        .logout-btn { border: 1px solid #ffcccc !important; color: #ffcccc !important; background: transparent !important; }
+        /* --- PREMIUM SAAS RESET & VARIABLES --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
 
-        .main-container { width: 100%; max-width: 900px; background: var(--card-bg); border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); overflow: hidden; margin-top: 60px; animation: slideUp 0.5s ease-out; }
-        .header { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); padding: 30px; text-align: center; color: white; }
-        .form-container { padding: 30px; }
-        
-        /* IMPROVED GRID SYSTEM TO FIX OVERLAPPING */
-        .grid-row { 
-            display: grid; 
-            gap: 20px; /* More space between boxes */
-            grid-template-columns: 1fr; /* Default mobile view */
+        :root { 
+            --brand-primary: #2563eb; 
+            --brand-dark: #1e3a8a;
+            --brand-light: #eff6ff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --border-color: #e2e8f0;
+            --danger: #ef4444; 
+            --success: #10b981; 
         }
+
+        body { background-color: var(--bg-body); color: var(--text-main); display: flex; min-height: 100vh; overflow-x: hidden; }
+
+        /* --- SPLIT SCREEN LAYOUT --- */
+        .layout-wrapper { display: flex; width: 100%; min-height: 100vh; }
+
+        /* LEFT PANEL (Branding) */
+        .left-panel {
+            width: 40%;
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-primary) 100%);
+            color: white;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+        }
+
+        .brand-logo { font-size: 1.8rem; font-weight: 700; display: flex; align-items: center; gap: 12px; letter-spacing: -0.5px; }
+        .brand-logo i { font-size: 2.2rem; color: #60a5fa; }
         
-        .section-title { color: var(--primary); font-size: 0.9rem; font-weight: 700; margin: 30px 0 15px 0; border-bottom: 2px solid #e2e8f0; text-transform: uppercase; }
+        .hero-text { margin-top: -100px; }
+        .hero-text h1 { font-size: 3rem; font-weight: 700; line-height: 1.2; margin-bottom: 20px; }
+        .hero-text p { font-size: 1.1rem; color: #bfdbfe; font-weight: 300; line-height: 1.6; max-width: 90%; }
+
+        .trust-badges { display: flex; gap: 20px; opacity: 0.8; font-size: 0.9rem; }
+        .trust-badges span { display: flex; align-items: center; gap: 8px; }
+
+        /* RIGHT PANEL (Form Area) */
+        .right-panel {
+            width: 60%;
+            margin-left: 40%; /* Offset for fixed left panel */
+            padding: 40px 8%;
+            background-color: var(--bg-body);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- TOP NAVBAR (Right Side) --- */
+        .top-nav { display: flex; justify-content: flex-end; gap: 15px; margin-bottom: 40px; align-items: center; }
+        .nav-btn { color: var(--text-muted); text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 500; font-size: 0.95rem; transition: 0.3s; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; align-items: center; gap: 8px; }
+        .nav-btn:hover { color: var(--brand-primary); border-color: var(--brand-primary); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1); }
+        .nav-btn-primary { background: var(--brand-primary); color: white; border: none; }
+        .nav-btn-primary:hover { background: var(--brand-dark); color: white; }
+        .nav-btn-danger { color: var(--danger); }
+
+        .welcome-header { margin-bottom: 30px; }
+        .welcome-header h2 { font-size: 1.8rem; font-weight: 600; color: var(--text-main); }
+        .welcome-header p { color: var(--text-muted); margin-top: 5px; }
+
+        /* --- FORM STYLING --- */
+        .form-card { background: var(--bg-card); padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.03); border: 1px solid var(--border-color); margin-bottom: 40px; }
+        
+        .section-title { font-size: 0.85rem; font-weight: 700; color: var(--brand-primary); text-transform: uppercase; letter-spacing: 1px; margin: 30px 0 20px 0; display: flex; align-items: center; gap: 10px; }
+        .section-title::after { content: ""; flex: 1; height: 1px; background: var(--border-color); }
         .section-title:first-child { margin-top: 0; }
 
-        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; color: #475569; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; background: #f8fafc; font-size: 1rem; font-family: inherit; box-sizing: border-box; } /* box-sizing ensures padding doesn't widen the element */
-        
-        button { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 30px; transition: 0.3s; }
-        button:hover { background: var(--primary-dark); transform: translateY(-2px); }
-        
-        /* Desktop View: 2 Columns */
-        @media (min-width: 700px) { 
-            .grid-row { grid-template-columns: 1fr 1fr; } 
-            .full-width { grid-column: 1 / -1; } /* Spans entire width */
-        }
-        
-        /* Modal Styles */
-        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(5px); }
-        .modal-content { background-color: #fff; margin: 5% auto; padding: 0; border-radius: 15px; width: 90%; max-width: 600px; box-shadow: 0 25px 50px rgba(0,0,0,0.3); animation: slideDown 0.3s ease; overflow: hidden; }
-        .modal-header { background: #f8fafc; padding: 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
-        .modal-header h2 { margin: 0; color: #333; font-size: 1.2rem; }
-        .close-btn { color: #666; font-size: 1.5rem; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .modal-body { padding: 20px; }
-        .ref-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-        .ref-table th, .ref-table td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-        .status-safe { color: var(--success); font-weight: 600; }
-        .status-danger { color: var(--danger); font-weight: 600; }
+        .grid-row { display: grid; gap: 24px; grid-template-columns: 1fr 1fr; }
+        .full-width { grid-column: 1 / -1; }
 
-        #result-section { display: none; margin-top: 30px; }
-        .risk-card { padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 20px; }
-        .high-risk { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
-        .low-risk { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
-        .tips-container { background: #f1f5f9; padding: 20px; border-radius: 12px; }
-        .tip-item { display: flex; margin-bottom: 10px; align-items: flex-start; } .tip-item i { margin-right: 10px; margin-top: 4px; }
+        .input-wrapper { display: flex; flex-direction: column; gap: 8px; }
+        label { font-size: 0.9rem; font-weight: 500; color: var(--text-main); }
         
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-50px); } to { opacity: 1; transform: translateY(0); } }
+        /* Premium Input Fields */
+        .input-group { position: relative; display: flex; align-items: center; }
+        .input-group i { position: absolute; left: 16px; color: #94a3b8; font-size: 1.1rem; pointer-events: none; transition: 0.3s; }
+        
+        input, select { 
+            width: 100%; padding: 14px 16px 14px 46px; 
+            border: 1px solid var(--border-color); border-radius: 10px; 
+            background-color: #f8fafc; color: var(--text-main); 
+            font-size: 1rem; transition: all 0.2s ease;
+            appearance: none;
+        }
+        select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: calc(100% - 16px) center; }
+        
+        input:focus, select:focus { outline: none; background-color: #ffffff; border-color: var(--brand-primary); box-shadow: 0 0 0 4px var(--brand-light); }
+        input:focus + i, select:focus + i, .input-group:focus-within i { color: var(--brand-primary); }
+
+        /* Primary Action Button */
+        button[type="submit"] { width: 100%; padding: 18px; background: var(--brand-primary); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 20px; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); display: flex; justify-content: center; align-items: center; gap: 10px; }
+        button[type="submit"]:hover { background: var(--brand-dark); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3); }
+
+        /* --- RESULTS SECTION --- */
+        #result-section { display: none; animation: fadeIn 0.5s ease forwards; }
+        .risk-card { padding: 30px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 20px; }
+        .risk-icon { font-size: 3rem; }
+        .high-risk { background: #fef2f2; border-color: #fca5a5; }
+        .high-risk .risk-icon { color: var(--danger); }
+        .low-risk { background: #f0fdf4; border-color: #86efac; }
+        .low-risk .risk-icon { color: var(--success); }
+        
+        .risk-text h2 { margin: 0 0 5px 0; font-size: 1.5rem; color: var(--text-main); }
+        .risk-text p { margin: 0; color: var(--text-muted); font-size: 0.95rem; }
+
+        .tips-container { background: var(--bg-card); padding: 25px; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        .tip-item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; font-size: 0.95rem; color: var(--text-main); padding-bottom: 16px; border-bottom: 1px solid var(--border-color); }
+        .tip-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+        .tip-item i { font-size: 1.2rem; margin-top: 2px; }
+
+        /* --- RESPONSIVE DESIGN --- */
+        @media (max-width: 992px) {
+            .layout-wrapper { flex-direction: column; }
+            .left-panel { width: 100%; height: auto; position: relative; padding: 40px 20px; text-align: center; align-items: center; }
+            .hero-text { margin-top: 30px; }
+            .hero-text h1 { font-size: 2.2rem; }
+            .hero-text p { max-width: 100%; }
+            .right-panel { width: 100%; margin-left: 0; padding: 30px 20px; }
+            .grid-row { grid-template-columns: 1fr; }
+        }
+
+        /* --- MODAL (Clean) --- */
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); }
+        .modal-content { background: var(--bg-card); margin: 8% auto; border-radius: 20px; width: 90%; max-width: 650px; box-shadow: 0 25px 50px rgba(0,0,0,0.15); animation: fadeIn 0.3s ease; overflow: hidden; }
+        .modal-header { padding: 25px 30px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: #f8fafc; }
+        .close-btn { color: var(--text-muted); font-size: 1.5rem; cursor: pointer; }
+        .close-btn:hover { color: var(--text-main); }
+        .modal-body { padding: 30px; }
+        .ref-table { width: 100%; border-collapse: collapse; }
+        .ref-table th, .ref-table td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .ref-table th { color: var(--text-muted); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <nav>
-        <div style="color: white; font-weight: bold; font-size: 1.3rem;"> <i class="fas fa-heartbeat"></i> HeartGuard </div>
-        <div class="nav-links">
-            <a onclick="openModal()"><i class="fas fa-file-medical"></i> Safety Guide</a>
-            {% if current_user.is_authenticated %}
-                <a href="/profile"><i class="fas fa-user"></i> My Profile</a>
-                <a href="/logout" class="logout-btn">Logout</a>
-            {% else %}
-                <a href="/login" style="background: #22c55e;">Login / Sign Up</a>
-            {% endif %}
-        </div>
-    </nav>
+    <div class="layout-wrapper">
+        
+        <div class="left-panel">
+            <div class="brand-logo">
+                <i class="fas fa-heartbeat"></i> HeartGuard AI
+            </div>
+            
+            <div class="hero-text">
+                <h1>Clinical precision,<br>powered by AI.</h1>
+                <p>Advanced machine learning algorithms designed to analyze cardiovascular parameters and predict potential risks with high accuracy.</p>
+            </div>
 
-    <div id="referenceModal" class="modal">
+            <div class="trust-badges">
+                <span><i class="fas fa-shield-alt"></i> Secure Data</span>
+                <span><i class="fas fa-bolt"></i> Instant Analysis</span>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            
+            <div class="top-nav">
+                <a onclick="openModal()" class="nav-btn"><i class="fas fa-book-medical"></i> Clinical Guide</a>
+                {% if current_user.is_authenticated %}
+                    <a href="/profile" class="nav-btn"><i class="fas fa-history"></i> Patient History</a>
+                    <a href="/logout" class="nav-btn nav-btn-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                {% else %}
+                    <a href="/login" class="nav-btn nav-btn-primary"><i class="fas fa-lock"></i> Secure Login</a>
+                {% endif %}
+            </div>
+
+            <div class="welcome-header">
+                <h2>Patient Assessment</h2>
+                <p>Consulting Assessor: <strong>{{ name }}</strong></p>
+            </div>
+
+            <form id="predictionForm" class="form-card">
+                
+                <div class="section-title">Patient Identification</div>
+                <div class="grid-row">
+                    <div class="input-wrapper full-width">
+                        <label>Full Name</label>
+                        <div class="input-group">
+                            <i class="far fa-user"></i>
+                            <input type="text" id="patient_name" placeholder="Enter patient's full name" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">Demographics</div>
+                <div class="grid-row">
+                    <div class="input-wrapper">
+                        <label>Age (Years)</label>
+                        <div class="input-group">
+                            <i class="far fa-calendar-alt"></i>
+                            <input type="number" id="age" placeholder="e.g. 55" required>
+                        </div>
+                    </div>
+                    <div class="input-wrapper">
+                        <label>Biological Sex</label>
+                        <div class="input-group">
+                            <i class="fas fa-venus-mars"></i>
+                            <select id="sex"><option value="1">Male</option><option value="0">Female</option></select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">Clinical Vitals</div>
+                <div class="grid-row">
+                    <div class="input-wrapper">
+                        <label>Resting BP (mm Hg)</label>
+                        <div class="input-group">
+                            <i class="fas fa-stethoscope"></i>
+                            <input type="number" id="trestbps" placeholder="e.g. 120" required>
+                        </div>
+                    </div>
+                    <div class="input-wrapper">
+                        <label>Total Cholesterol (mg/dl)</label>
+                        <div class="input-group">
+                            <i class="fas fa-vial"></i>
+                            <input type="number" id="chol" placeholder="e.g. 200" required>
+                        </div>
+                    </div>
+                    <div class="input-wrapper">
+                        <label>Maximum Heart Rate</label>
+                        <div class="input-group">
+                            <i class="fas fa-wave-square"></i>
+                            <input type="number" id="thalach" placeholder="e.g. 150" required>
+                        </div>
+                    </div>
+                    <div class="input-wrapper">
+                        <label>Fasting Blood Sugar > 120?</label>
+                        <div class="input-group">
+                            <i class="fas fa-tint"></i>
+                            <select id="fbs"><option value="0">No (Normal)</option><option value="1">Yes (Elevated)</option></select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">Symptoms</div>
+                <div class="grid-row">
+                    <div class="input-wrapper full-width">
+                        <label>Chest Pain Classification</label>
+                        <div class="input-group">
+                            <i class="fas fa-lungs"></i>
+                            <select id="cp">
+                                <option value="0">Typical Angina (Heart-related pain)</option>
+                                <option value="1">Atypical Angina</option>
+                                <option value="2">Non-Anginal Pain (Non-heart related)</option>
+                                <option value="3">Asymptomatic (No pain)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:none;">
+                    <select id="exang"><option value="0" selected>No</option></select>
+                    <select id="restecg"><option value="0" selected>Normal</option></select>
+                    <input type="number" id="oldpeak" value="0">
+                    <select id="slope"><option value="1" selected>Flat</option></select>
+                    <input type="number" id="ca" value="0">
+                    <select id="thal"><option value="2" selected>Normal</option></select>
+                </div>
+
+                <button type="submit" id="submitBtn"><i class="fas fa-bolt"></i> Run Predictive Model</button>
+            </form>
+
+            <div id="result-section">
+                <div id="risk-card" class="risk-card">
+                    <div class="risk-icon" id="risk-icon-container"></div>
+                    <div class="risk-text">
+                        <h2 id="prediction-title"></h2>
+                        <p id="prediction-desc"></p>
+                    </div>
+                </div>
+                <div class="tips-container">
+                    <div class="section-title" style="margin-top:0;">Clinical Insights</div>
+                    <div id="health-tips-list"></div>
+                </div>
+            </div>
+
+        </div> </div> <div id="referenceModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2><i class="fas fa-notes-medical"></i> Clinical Safety Ranges</h2>
+                <h2 style="margin:0; font-size:1.2rem; color:var(--text-main);"><i class="fas fa-book-medical" style="color:var(--brand-primary); margin-right:8px;"></i> Reference Ranges</h2>
                 <span class="close-btn" onclick="closeModal()">&times;</span>
             </div>
             <div class="modal-body">
                 <table class="ref-table">
-                    <thead><tr><th>Measurement</th><th>Safe Range <i class="fas fa-check-circle status-safe"></i></th><th>High Risk <i class="fas fa-exclamation-triangle status-danger"></i></th></tr></thead>
+                    <thead><tr><th>Test Marker</th><th>Optimal (Safe)</th><th>High Risk Zone</th></tr></thead>
                     <tbody>
-                        <tr><td><strong>Blood Pressure</strong></td><td class="status-safe">Below 120 mm Hg</td><td class="status-danger">Above 140 mm Hg</td></tr>
-                        <tr><td><strong>Cholesterol</strong></td><td class="status-safe">Below 200 mg/dl</td><td class="status-danger">Above 240 mg/dl</td></tr>
-                        <tr><td><strong>Fasting Blood Sugar</strong></td><td class="status-safe">Below 100 mg/dl</td><td class="status-danger">Above 126 mg/dl</td></tr>
-                        <tr><td><strong>Max Heart Rate</strong></td><td class="status-safe">60 - 100 bpm</td><td class="status-danger">Irregular or >100</td></tr>
+                        <tr><td><strong>Blood Pressure</strong></td><td style="color:var(--success); font-weight:500;">&lt; 120 / 80</td><td style="color:var(--danger); font-weight:500;">&gt; 140 / 90</td></tr>
+                        <tr><td><strong>Cholesterol</strong></td><td style="color:var(--success); font-weight:500;">&lt; 200 mg/dl</td><td style="color:var(--danger); font-weight:500;">&gt; 240 mg/dl</td></tr>
+                        <tr><td><strong>Blood Sugar</strong></td><td style="color:var(--success); font-weight:500;">&lt; 100 mg/dl</td><td style="color:var(--danger); font-weight:500;">&gt; 126 mg/dl</td></tr>
                     </tbody>
                 </table>
-            </div>
-        </div>
-    </div>
-
-    <div class="main-container">
-        <div class="header">
-            <i class="fas fa-heart-pulse fa-3x" style="margin-bottom:10px;"></i>
-            <h1>Heart Attack Risk Analysis</h1>
-            <p>Welcome, {{ name }}</p>
-        </div>
-
-        <form id="predictionForm" class="form-container">
-            <div class="section-title">1. Patient Identification</div>
-            
-            <div class="grid-row">
-                <div class="full-width">
-                    <label>Patient Name</label>
-                    <input type="text" id="patient_name" placeholder="Enter Full Name" required>
-                </div>
-            </div>
-
-            <div class="section-title">2. Clinical Profile</div>
-            <div class="grid-row">
-                <div><label>Age</label><input type="number" id="age" placeholder="e.g. 55" required></div>
-                <div><label>Sex</label><select id="sex"><option value="1">Male</option><option value="0">Female</option></select></div>
-            </div>
-
-            <div class="section-title">3. Vitals</div>
-            <div class="grid-row">
-                <div><label>Resting BP (mm Hg)</label><input type="number" id="trestbps" placeholder="120" required></div>
-                <div><label>Cholesterol (mg/dl)</label><input type="number" id="chol" placeholder="200" required></div>
-                <div><label>Max Heart Rate</label><input type="number" id="thalach" placeholder="150" required></div>
-                <div><label>Blood Sugar > 120?</label><select id="fbs"><option value="0">No</option><option value="1">Yes</option></select></div>
-            </div>
-
-            <div class="section-title">4. Symptoms</div>
-            <div class="grid-row">
-                <div class="full-width">
-                    <label>Chest Pain Type</label>
-                    <select id="cp">
-                        <option value="0">Typical Angina</option>
-                        <option value="1">Atypical Angina</option>
-                        <option value="2">Non-Anginal Pain</option>
-                        <option value="3">Asymptomatic</option>
-                    </select>
-                </div>
-            </div>
-
-            <div style="display:none;">
-                <select id="exang"><option value="0" selected>No</option></select>
-                <select id="restecg"><option value="0" selected>Normal</option></select>
-                <input type="number" id="oldpeak" value="0">
-                <select id="slope"><option value="1" selected>Flat</option></select>
-                <input type="number" id="ca" value="0">
-                <select id="thal"><option value="2" selected>Normal</option></select>
-            </div>
-
-            <button type="submit" id="submitBtn">Analyze Risk</button>
-        </form>
-
-        <div id="result-section">
-            <div id="risk-card" class="risk-card">
-                <h2 id="prediction-title"></h2>
-                <p id="prediction-desc"></p>
-            </div>
-            <div class="tips-container">
-                <div id="health-tips-list"></div>
             </div>
         </div>
     </div>
@@ -176,11 +321,11 @@
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
             const resultSection = document.getElementById('result-section');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...'; btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Processing Data...'; 
+            btn.disabled = true;
 
             const formData = {
                 patient_name: document.getElementById('patient_name').value,
-                // ADDRESS REMOVED HERE
                 age: document.getElementById('age').value, sex: document.getElementById('sex').value, cp: document.getElementById('cp').value,
                 trestbps: document.getElementById('trestbps').value, chol: document.getElementById('chol').value, fbs: document.getElementById('fbs').value,
                 restecg: document.getElementById('restecg').value, thalach: document.getElementById('thalach').value, exang: document.getElementById('exang').value,
@@ -188,26 +333,94 @@
             };
 
             try {
+                await new Promise(r => setTimeout(r, 600)); 
+
                 const response = await fetch('/predict', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) });
                 const data = await response.json();
+                
+                resultSection.style.display = 'none';
+                void resultSection.offsetWidth; 
                 resultSection.style.display = 'block';
 
+                const title = document.getElementById('prediction-title');
+                const desc = document.getElementById('prediction-desc');
+                const card = document.getElementById('risk-card');
+                const iconContainer = document.getElementById('risk-icon-container');
+
                 if (data.prediction_text.includes("High Risk")) {
-                    document.getElementById('risk-card').className = "risk-card high-risk";
-                    document.getElementById('prediction-title').innerText = "High Risk Detected";
-                    document.getElementById('prediction-desc').innerText = "Consult a cardiologist immediately.";
+                    card.className = "risk-card high-risk";
+                    iconContainer.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+                    title.innerText = 'High Risk Detected';
+                    desc.innerText = "The algorithm indicates patterns corresponding to cardiovascular risk. Clinical consultation is advised.";
                 } else {
-                    document.getElementById('risk-card').className = "risk-card low-risk";
-                    document.getElementById('prediction-title').innerText = "Low Risk / Normal";
-                    document.getElementById('prediction-desc').innerText = "No significant heart disease patterns found.";
+                    card.className = "risk-card low-risk";
+                    iconContainer.innerHTML = '<i class="fas fa-check-circle"></i>';
+                    title.innerText = 'Normal Profile';
+                    desc.innerText = "No significant abnormal patterns detected. Maintain a healthy lifestyle.";
                 }
+                
+                // --- SMART CLINICAL INSIGHTS ENGINE ---
                 let tips = '';
-                if(formData.trestbps > 130) tips += `<div class="tip-item"><i class="fas fa-exclamation-circle" style="color:#f59e0b"></i> <span>BP is elevated (${formData.trestbps}). Ideal is <120.</span></div>`;
-                if(formData.chol > 200) tips += `<div class="tip-item"><i class="fas fa-hamburger" style="color:#f59e0b"></i> <span>Cholesterol is high (${formData.chol}). Ideal is <200.</span></div>`;
-                if(!tips) tips = `<div class="tip-item"><i class="fas fa-check" style="color:#22c55e"></i> <span>Your vitals (BP, Cholesterol) are within healthy ranges.</span></div>`;
+                const bp = parseInt(formData.trestbps);
+                const chol = parseInt(formData.chol);
+                const fbs = parseInt(formData.fbs);
+                const age = parseInt(formData.age);
+                const cp = parseInt(formData.cp);
+
+                // 1. Blood Pressure Insight
+                if(bp > 130) {
+                    tips += `<div class="tip-item"><i class="fas fa-arrow-up" style="color:var(--danger);"></i> <div><strong>Hypertension Alert:</strong> BP is elevated at ${bp} mmHg. Values above 130/80 increase mechanical strain on the heart walls.</div></div>`;
+                }
+                
+                // 2. Cholesterol Insight
+                if(chol > 200) {
+                    tips += `<div class="tip-item"><i class="fas fa-hamburger" style="color:var(--danger);"></i> <div><strong>Hyperlipidemia:</strong> Cholesterol is high at ${chol} mg/dl. Excess cholesterol leads to plaque buildup in arteries.</div></div>`;
+                }
+
+                // 3. Blood Sugar Insight
+                if(fbs === 1) {
+                    tips += `<div class="tip-item"><i class="fas fa-cubes" style="color:var(--danger);"></i> <div><strong>Elevated Blood Sugar:</strong> Fasting sugar > 120 mg/dl detected. This significantly multiplies cardiovascular risk and blood vessel damage.</div></div>`;
+                }
+
+                // 4. Chest Pain Insight
+                if(cp === 0) {
+                    tips += `<div class="tip-item"><i class="fas fa-lungs" style="color:var(--danger);"></i> <div><strong>Typical Angina:</strong> You reported classic chest pain. This is a primary clinical indicator of reduced blood flow to the heart muscle.</div></div>`;
+                }
+
+                // 5. Age Insight
+                if(age > 50 && bp <= 130 && chol <= 200) {
+                    tips += `<div class="tip-item"><i class="fas fa-info-circle" style="color:var(--brand-primary);"></i> <div><strong>Age Factor:</strong> As age increases past 50, regular cardiovascular screening is highly recommended even if vitals appear normal.</div></div>`;
+                }
+
+                // 6. Safe Vitals Fallback
+                if(!tips) {
+                    tips = `<div class="tip-item"><i class="fas fa-shield-alt" style="color:var(--success);"></i> <div><strong>Excellent Vitals:</strong> All entered baseline vitals (BP, Cholesterol, Blood Sugar) are within standard healthy clinical ranges.</div></div>`;
+                }
+
+                // 7. FINAL ACTIONABLE ADVICE (Based on AI Prediction)
+                if (data.prediction_text.includes("High Risk")) {
+                    tips += `
+                    <div class="tip-item" style="background: #fef2f2; padding: 15px; border-radius: 10px; border: 1px solid #fca5a5; margin-top: 20px;">
+                        <i class="fas fa-hospital-symbol" style="color:var(--danger); font-size: 1.5rem;"></i> 
+                        <div><strong>Recommended Next Steps:</strong> Please schedule an appointment with a Cardiologist immediately for an ECG/TMT test. Do not ignore these clinical warning signs.</div>
+                    </div>`;
+                } else {
+                    tips += `
+                    <div class="tip-item" style="background: #f0fdf4; padding: 15px; border-radius: 10px; border: 1px solid #86efac; margin-top: 20px;">
+                        <i class="fas fa-running" style="color:var(--success); font-size: 1.5rem;"></i> 
+                        <div><strong>Recommended Next Steps:</strong> Maintain a heart-healthy diet, aim for 30 minutes of daily cardiovascular exercise, and monitor your vitals annually.</div>
+                    </div>`;
+                }
+                
                 document.getElementById('health-tips-list').innerHTML = tips;
-                resultSection.scrollIntoView({ behavior: 'smooth' });
-            } catch (error) { alert("Error connecting to server."); } finally { btn.innerHTML = 'Analyze Risk'; btn.disabled = false; }
+                resultSection.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while processing the prediction. Please try again.');
+            } finally {
+                btn.innerHTML = '<i class="fas fa-bolt"></i> Run Predictive Model';
+                btn.disabled = false;
+            }
         });
     </script>
 </body>
