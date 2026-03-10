@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HeartGuard AI | Clinical Risk Analysis</title>
+    <title>HeartGuard | Clinical Risk Analysis</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
@@ -12,12 +12,12 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
 
         :root { 
-            --brand-primary: #2563eb; 
+            --brand-primary: #000000; 
             --brand-dark: #1e3a8a;
             --brand-light: #eff6ff;
             --text-main: #0f172a;
             --text-muted: #64748b;
-            --bg-body: #f8fafc;
+            --bg-body: #f1f1f1;
             --bg-card: #ffffff;
             --border-color: #e2e8f0;
             --danger: #ef4444; 
@@ -31,7 +31,7 @@
         /* LEFT PANEL (Branding & Local Background Image) */
         .left-panel {
             width: 40%;
-            background: linear-gradient(135deg, rgba(30, 58, 138, 0.85) 0%, rgba(37, 99, 235, 0.85) 100%), 
+            background:  
                         url('/static/bg.jpg');
             background-size: cover;
             background-position: center;
@@ -47,7 +47,7 @@
         }
 
         .brand-logo { font-size: 1.8rem; font-weight: 700; display: flex; align-items: center; gap: 12px; letter-spacing: -0.5px; }
-        .brand-logo i { font-size: 2.2rem; color: #60a5fa; }
+        .brand-logo i { font-size: 2.2rem; color: #d70d0d; }
         
         .hero-text { margin-top: -100px; }
         .hero-text h1 { font-size: 3rem; font-weight: 700; line-height: 1.2; margin-bottom: 20px; }
@@ -150,11 +150,11 @@
         
         <div class="left-panel">
             <div class="brand-logo">
-                <i class="fas fa-heartbeat"></i> HeartGuard AI
+                <i class="fas fa-heartbeat"></i> HeartGuard
             </div>
             <div class="hero-text">
-                <h1>Clinical precision,<br>powered by AI.</h1>
-                <p>Advanced machine learning algorithms designed to analyze cardiovascular parameters and predict potential risks with high accuracy.</p>
+                <h1>Heart attack <br> Risk Analysis</h1>
+                <p><strong>Advanced machine learning algorithms designed to analyze cardiovascular parameters and predict potential risks with high accuracy.</strong></p>
             </div>
             <div class="trust-badges">
                 <span><i class="fas fa-shield-alt"></i> Secure Data</span>
@@ -258,7 +258,7 @@
                     </div>
                 </div>
 
-                <button type="submit" id="submitBtn"><i class="fas fa-bolt"></i> Run Predictive Model</button>
+                <button type="submit" id="submitBtn"><i class="fas fa-bolt"></i> Predict The Risk</button>
             </form>
 
             <div id="result-section">
