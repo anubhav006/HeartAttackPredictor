@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HeartGuard | Clinical Risk Analysis</title>
+    <title>HeartGuard AI | Clinical Risk Analysis</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* --- PREMIUM SAAS RESET & VARIABLES --- */
+        /* --- PREMIUM SAAS LIGHT THEME --- */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
 
         :root { 
-            --brand-primary: #000000; 
+            --brand-primary: #2563eb; 
             --brand-dark: #1e3a8a;
             --brand-light: #eff6ff;
-            --text-main: #1e356b;
+            --text-main: #0f172a;
             --text-muted: #64748b;
             --bg-body: #f8fafc;
             --bg-card: #ffffff;
@@ -28,9 +28,10 @@
 
         .layout-wrapper { display: flex; width: 100%; min-height: 100vh; }
 
+        /* LEFT PANEL (Branding & Local Background Image) */
         .left-panel {
             width: 40%;
-            background:  
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.85) 0%, rgba(37, 99, 235, 0.85) 100%), 
                         url('/static/bg.jpg');
             background-size: cover;
             background-position: center;
@@ -46,7 +47,7 @@
         }
 
         .brand-logo { font-size: 1.8rem; font-weight: 700; display: flex; align-items: center; gap: 12px; letter-spacing: -0.5px; }
-        .brand-logo i { font-size: 2.2rem; color: #ae0707; }
+        .brand-logo i { font-size: 2.2rem; color: #60a5fa; }
         
         .hero-text { margin-top: -100px; }
         .hero-text h1 { font-size: 3rem; font-weight: 700; line-height: 1.2; margin-bottom: 20px; }
@@ -55,6 +56,7 @@
         .trust-badges { display: flex; gap: 20px; opacity: 0.8; font-size: 0.9rem; }
         .trust-badges span { display: flex; align-items: center; gap: 8px; }
 
+        /* RIGHT PANEL (Form Area) */
         .right-panel {
             width: 60%;
             margin-left: 40%; 
@@ -103,7 +105,6 @@
         input:focus, select:focus { outline: none; background-color: #ffffff; border-color: var(--brand-primary); box-shadow: 0 0 0 4px var(--brand-light); }
         input:focus + i, select:focus + i, .input-group:focus-within i { color: var(--brand-primary); }
 
-        /* Primary Action Button */
         button[type="submit"] { width: 100%; padding: 18px; background: var(--brand-primary); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 20px; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); display: flex; justify-content: center; align-items: center; gap: 10px; }
         button[type="submit"]:hover { background: var(--brand-dark); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3); }
 
@@ -126,9 +127,6 @@
         @media (max-width: 992px) {
             .layout-wrapper { flex-direction: column; }
             .left-panel { width: 100%; height: auto; position: relative; padding: 40px 20px; text-align: center; align-items: center; }
-            .hero-text { margin-top: 30px; }
-            .hero-text h1 { font-size: 2.2rem; }
-            .hero-text p { max-width: 100%; }
             .right-panel { width: 100%; margin-left: 0; padding: 30px 20px; }
             .grid-row { grid-template-columns: 1fr; }
         }
@@ -152,14 +150,12 @@
         
         <div class="left-panel">
             <div class="brand-logo">
-                <i class="fas fa-heartbeat"></i> HeartGuard
+                <i class="fas fa-heartbeat"></i> HeartGuard AI
             </div>
-            
             <div class="hero-text">
                 <h1>Clinical precision,<br>powered by AI.</h1>
                 <p>Advanced machine learning algorithms designed to analyze cardiovascular parameters and predict potential risks with high accuracy.</p>
             </div>
-
             <div class="trust-badges">
                 <span><i class="fas fa-shield-alt"></i> Secure Data</span>
                 <span><i class="fas fa-bolt"></i> Instant Analysis</span>
@@ -262,16 +258,7 @@
                     </div>
                 </div>
 
-                <div style="display:none;">
-                    <select id="exang"><option value="0" selected>No</option></select>
-                    <select id="restecg"><option value="0" selected>Normal</option></select>
-                    <input type="number" id="oldpeak" value="0">
-                    <select id="slope"><option value="1" selected>Flat</option></select>
-                    <input type="number" id="ca" value="0">
-                    <select id="thal"><option value="2" selected>Normal</option></select>
-                </div>
-
-                <button type="submit" id="submitBtn"><i class="fas fa-bolt"></i> Predict Risk</button>
+                <button type="submit" id="submitBtn"><i class="fas fa-bolt"></i> Run Predictive Model</button>
             </form>
 
             <div id="result-section">
@@ -288,7 +275,8 @@
                 </div>
             </div>
 
-        </div> </div>
+        </div> 
+    </div>
 
     <div id="referenceModal" class="modal">
         <div class="modal-content">
@@ -321,12 +309,16 @@
             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Processing Data...'; 
             btn.disabled = true;
 
+            // SIRF 7 INPUTS FRONTEND SE JAA RAHE HAIN
             const formData = {
                 patient_name: document.getElementById('patient_name').value,
-                age: document.getElementById('age').value, sex: document.getElementById('sex').value, cp: document.getElementById('cp').value,
-                trestbps: document.getElementById('trestbps').value, chol: document.getElementById('chol').value, fbs: document.getElementById('fbs').value,
-                restecg: document.getElementById('restecg').value, thalach: document.getElementById('thalach').value, exang: document.getElementById('exang').value,
-                oldpeak: document.getElementById('oldpeak').value, slope: document.getElementById('slope').value, ca: document.getElementById('ca').value, thal: document.getElementById('thal').value
+                age: document.getElementById('age').value, 
+                sex: document.getElementById('sex').value, 
+                trestbps: document.getElementById('trestbps').value, 
+                chol: document.getElementById('chol').value, 
+                thalach: document.getElementById('thalach').value, 
+                fbs: document.getElementById('fbs').value,
+                cp: document.getElementById('cp').value
             };
 
             try {
@@ -366,23 +358,18 @@
                 if(bp > 130) {
                     tips += `<div class="tip-item"><i class="fas fa-arrow-up" style="color:var(--danger);"></i> <div><strong>Hypertension Alert:</strong> BP is elevated at ${bp} mmHg. Values above 130/80 increase mechanical strain on the heart walls.</div></div>`;
                 }
-                
                 if(chol > 200) {
                     tips += `<div class="tip-item"><i class="fas fa-hamburger" style="color:var(--danger);"></i> <div><strong>Hyperlipidemia:</strong> Cholesterol is high at ${chol} mg/dl. Excess cholesterol leads to plaque buildup in arteries.</div></div>`;
                 }
-
                 if(fbs === 1) {
                     tips += `<div class="tip-item"><i class="fas fa-cubes" style="color:var(--danger);"></i> <div><strong>Elevated Blood Sugar:</strong> Fasting sugar > 120 mg/dl detected. This significantly multiplies cardiovascular risk and blood vessel damage.</div></div>`;
                 }
-
                 if(cp === 0) {
                     tips += `<div class="tip-item"><i class="fas fa-lungs" style="color:var(--danger);"></i> <div><strong>Typical Angina:</strong> You reported classic chest pain. This is a primary clinical indicator of reduced blood flow to the heart muscle.</div></div>`;
                 }
-
                 if(age > 50 && bp <= 130 && chol <= 200) {
                     tips += `<div class="tip-item"><i class="fas fa-info-circle" style="color:var(--brand-primary);"></i> <div><strong>Age Factor:</strong> As age increases past 50, regular cardiovascular screening is highly recommended even if vitals appear normal.</div></div>`;
                 }
-
                 if(!tips) {
                     tips = `<div class="tip-item"><i class="fas fa-shield-alt" style="color:var(--success);"></i> <div><strong>Excellent Vitals:</strong> All entered baseline vitals (BP, Cholesterol, Blood Sugar) are within standard healthy clinical ranges.</div></div>`;
                 }

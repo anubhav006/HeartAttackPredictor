@@ -3,83 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | HeartGuard AI</title>
+    <title>Secure Access | HeartGuard AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)),
-                              url('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=2072');
-            background-size: cover; background-position: center;
-            display: flex; justify-content: center; align-items: center;
-            height: 100vh; margin: 0; color: #333;
-        }
-
-        .auth-container {
-            background: rgba(255, 255, 255, 0.96); padding: 40px; border-radius: 15px;
-            width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); text-align: center;
-        }
-
-        h2 { color: #2563eb; margin-bottom: 20px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        :root { --brand-primary: #3b82f6; --text-main: #f8fafc; --text-muted: #94a3b8; --bg-body: #020617; --bg-card: #0f172a; --border-color: #334155; }
+        body { background-color: var(--bg-body); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         
-        button { width: 100%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.3s; margin-top: 10px;}
-        button:hover { background: #1e40af; }
+        .auth-container { background: var(--bg-card); padding: 40px 35px; border-radius: 20px; width: 100%; max-width: 420px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); border: 1px solid var(--border-color); text-align: center; }
+        .brand-logo { color: var(--brand-primary); font-size: 2rem; margin-bottom: 5px; }
+        h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 5px; color: var(--text-main); }
+        p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 25px; }
 
-        .guest-btn { background: #64748b; margin-top: 15px; }
-        .guest-btn:hover { background: #475569; }
+        .input-group { position: relative; width: 100%; margin-bottom: 15px; }
+        .input-group i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #64748b; font-size: 1rem; }
+        input { width: 100%; padding: 14px 16px 14px 46px; border: 1px solid var(--border-color); border-radius: 10px; background-color: #1e293b; color: var(--text-main); font-size: 0.95rem; }
+        input:focus { outline: none; border-color: var(--brand-primary); }
 
-        .toggle-link { margin-top: 15px; font-size: 0.9rem; color: #666; cursor: pointer; }
-        .toggle-link span { color: #2563eb; font-weight: bold; }
+        button { width: 100%; padding: 14px; background: var(--brand-primary); color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 10px; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        button:hover { background: #2563eb; }
+        .guest-btn { background: transparent; color: var(--text-main); border: 1px solid var(--border-color); margin-top: 15px; }
+        .guest-btn:hover { background: #1e293b; }
+        .btn-register { background: #10b981; } .btn-register:hover { background: #059669; }
+
+        .toggle-link { margin-top: 25px; font-size: 0.95rem; color: var(--text-muted); }
+        .toggle-link span { color: var(--brand-primary); font-weight: 600; cursor: pointer; }
+        .toggle-link span:hover { text-decoration: underline; }
         .hidden { display: none; }
-        .flash-msg { background: #fee2e2; color: #991b1b; padding: 10px; border-radius: 5px; margin-bottom: 10px; font-size: 0.9rem; }
+        .flash-msg { background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem; }
+        .flash-msg.success { background: rgba(16, 185, 129, 0.1); color: #34d399; border-color: rgba(16, 185, 129, 0.3); }
     </style>
 </head>
 <body>
-
 <div class="auth-container">
-    {% with messages = get_flashed_messages() %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            {% for message in messages %}
-                <div class="flash-msg">{{ message }}</div>
+            {% for category, message in messages %}
+                <div class="flash-msg {% if category == 'success' %}success{% endif %}">{{ message }}</div>
             {% endfor %}
         {% endif %}
     {% endwith %}
 
     <div id="login-form">
-        <h2>HeartGuard Login</h2>
+        <div class="brand-logo"><i class="fas fa-heartbeat"></i></div>
+        <h2>Welcome Back</h2>
+        <p>Enter your credentials to access the portal</p>
         <form action="/login" method="POST">
-            <input type="text" name="username" placeholder="Username" autocomplete="off" required>
-            <input type="password" name="password" placeholder="Password" autocomplete="off" required>
-            <button type="submit">Sign In</button>
+            <div class="input-group"><i class="far fa-user"></i><input type="text" name="username" placeholder="Username" required></div>
+            <div class="input-group"><i class="fas fa-lock"></i><input type="password" name="password" placeholder="Password" required></div>
+            <button type="submit"><i class="fas fa-sign-in-alt"></i> Secure Sign In</button>
         </form>
-        
-        <a href="/">
-            <button type="button" class="guest-btn">Continue as Guest</button>
-        </a>
-
-        <div class="toggle-link" onclick="toggleForms()">
-            New user? <span>Create Account</span>
-        </div>
+        <a href="/" style="text-decoration: none;"><button type="button" class="guest-btn"><i class="far fa-compass"></i> Continue as Guest</button></a>
+        <div class="toggle-link">Don't have an account? <span onclick="toggleForms()">Register Now</span></div>
     </div>
 
     <div id="register-form" class="hidden">
+        <div class="brand-logo" style="color: #10b981;"><i class="fas fa-user-md"></i></div>
         <h2>Create Account</h2>
+        <p>Set up your profile to save patient history</p>
         <form action="/register" method="POST">
-            <input type="text" name="username" placeholder="Create Username" autocomplete="off" required>
-            <input type="password" name="password" placeholder="Create Password" autocomplete="off" required>
-            <button type="submit" style="background: #22c55e;">Register</button>
+            <div class="input-group"><i class="far fa-user"></i><input type="text" name="username" placeholder="Choose Username" required></div>
+            <div class="input-group"><i class="fas fa-key"></i><input type="password" name="password" placeholder="Choose Password" required></div>
+            <button type="submit" class="btn-register"><i class="fas fa-user-plus"></i> Create Account</button>
         </form>
-        <div class="toggle-link" onclick="toggleForms()">
-            Already have an account? <span>Sign In</span>
-        </div>
+        <div class="toggle-link">Already have an account? <span onclick="toggleForms()">Sign In Here</span></div>
     </div>
 </div>
-
 <script>
-    function toggleForms() {
-        document.getElementById('login-form').classList.toggle('hidden');
-        document.getElementById('register-form').classList.toggle('hidden');
-    }
+    function toggleForms() { document.getElementById('login-form').classList.toggle('hidden'); document.getElementById('register-form').classList.toggle('hidden'); }
 </script>
 </body>
 </html>

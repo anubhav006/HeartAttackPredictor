@@ -6,131 +6,39 @@
     <title>Patient History | HeartGuard AI</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <style>
-        /* --- PREMIUM SAAS RESET & VARIABLES --- */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-
-        :root { 
-            --brand-primary: #2563eb; 
-            --brand-dark: #1e3a8a;
-            --brand-light: #eff6ff;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --bg-body: #f8fafc;
-            --bg-card: #ffffff;
-            --border-color: #e2e8f0;
-            --danger: #ef4444; 
-            --success: #10b981; 
-        }
-
-        body { 
-            background-image: 
-                linear-gradient(rgba(240, 244, 248, 0.8), rgba(240, 244, 248, 0.95)), 
-                url('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=2072');
-            background-size: cover; background-position: center; background-attachment: fixed;
-            color: var(--text-main);
-            min-height: 100vh;
-            padding-bottom: 50px;
-        }
-
-        /* --- TOP NAVBAR --- */
-        .navbar { 
-            display: flex; justify-content: space-between; align-items: center; 
-            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(15px); 
-            border-bottom: 1px solid var(--border-color);
-            padding: 15px 5%; position: sticky; top: 0; z-index: 100;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-        }
+        :root { --brand-primary: #3b82f6; --text-main: #f8fafc; --text-muted: #94a3b8; --bg-body: #020617; --bg-card: #0f172a; --border-color: #334155; --danger: #ef4444; --success: #10b981; }
+        body { background-color: var(--bg-body); color: var(--text-main); min-height: 100vh; padding-bottom: 50px; }
         
-        .brand-logo { color: var(--brand-primary); font-size: 1.4rem; font-weight: 700; display: flex; align-items: center; gap: 8px; text-decoration: none; }
+        .navbar { display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); border-bottom: 1px solid var(--border-color); padding: 15px 5%; }
+        .brand-logo { color: var(--brand-primary); font-size: 1.4rem; font-weight: 700; text-decoration: none; }
+        .nav-btn { color: var(--text-muted); text-decoration: none; padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border-color); margin-left: 10px; }
+        .nav-btn:hover { color: var(--text-main); background: #1e293b; }
+
+        .container { max-width: 1000px; margin: 40px auto 0; padding: 0 20px; }
+        .profile-header { background: var(--bg-card); border-radius: 16px; padding: 30px; display: flex; align-items: center; gap: 20px; border: 1px solid var(--border-color); margin-bottom: 30px; }
+        .avatar { width: 80px; height: 80px; border-radius: 50%; background: rgba(59, 130, 246, 0.2); color: var(--brand-primary); display: flex; justify-content: center; align-items: center; font-size: 2.5rem; }
+        .profile-info h1 { font-size: 1.8rem; font-weight: 600; }
         
-        .nav-links { display: flex; gap: 15px; }
-        .nav-btn { 
-            color: var(--text-muted); text-decoration: none; padding: 10px 20px; 
-            border-radius: 8px; font-weight: 500; font-size: 0.95rem; transition: 0.3s; 
-            background: var(--bg-card); border: 1px solid var(--border-color); 
-            display: flex; align-items: center; gap: 8px; 
-        }
-        .nav-btn:hover { color: var(--brand-primary); border-color: var(--brand-primary); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1); }
-        .nav-btn-danger { color: var(--danger); border-color: rgba(239, 68, 68, 0.3); }
-        .nav-btn-danger:hover { background: #fef2f2; color: var(--danger); border-color: var(--danger); }
-
-        /* --- MAIN CONTAINER --- */
-        .container { max-width: 1000px; margin: 40px auto 0; padding: 0 20px; animation: slideUp 0.5s ease forwards; }
-
-        /* --- PROFILE HEADER CARD --- */
-        .profile-header { 
-            background: var(--bg-card); border-radius: 16px; padding: 30px; 
-            display: flex; align-items: center; gap: 20px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.03); border: 1px solid var(--border-color);
-            margin-bottom: 30px;
-        }
-        .avatar { 
-            width: 80px; height: 80px; border-radius: 50%; 
-            background: var(--brand-light); color: var(--brand-primary); 
-            display: flex; justify-content: center; align-items: center; 
-            font-size: 2.5rem; 
-        }
-        .profile-info h1 { margin: 0; font-size: 1.8rem; font-weight: 600; color: var(--text-main); }
-        .profile-info p { margin: 5px 0 0 0; color: var(--text-muted); font-size: 0.95rem; display: flex; align-items: center; gap: 6px; }
-
-        /* --- HISTORY TABLE CARD --- */
-        .history-card { 
-            background: var(--bg-card); border-radius: 16px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.03); border: 1px solid var(--border-color); 
-            overflow: hidden; 
-        }
-        .card-header { 
-            padding: 25px 30px; border-bottom: 1px solid var(--border-color); 
-            background: #f8fafc; display: flex; align-items: center; gap: 10px; 
-        }
-        .card-header h3 { margin: 0; color: var(--text-main); font-size: 1.2rem; font-weight: 600; }
-
-        /* --- MODERN TABLE STYLING --- */
-        .table-responsive { overflow-x: auto; }
+        .history-card { background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-color); overflow: hidden; }
+        .card-header { padding: 25px 30px; border-bottom: 1px solid var(--border-color); background: #1e293b; }
+        
         table { width: 100%; border-collapse: collapse; text-align: left; }
-        th { 
-            padding: 18px 30px; background: #ffffff; color: var(--text-muted); 
-            font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; 
-            font-weight: 600; border-bottom: 1px solid var(--border-color); 
-        }
-        td { padding: 18px 30px; border-bottom: 1px solid var(--border-color); font-size: 0.95rem; color: var(--text-main); vertical-align: middle; }
-        tr:last-child td { border-bottom: none; }
-        tr:hover { background: #f8fafc; }
-
-        .patient-name { font-weight: 600; color: var(--brand-primary); }
-        .date-text { color: var(--text-muted); font-size: 0.85rem; }
+        th { padding: 18px 30px; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; border-bottom: 1px solid var(--border-color); }
+        td { padding: 18px 30px; border-bottom: 1px solid var(--border-color); font-size: 0.95rem; }
         
-        /* Modern Badges */
         .badge { padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
-        .badge-safe { background: #f0fdf4; color: #15803d; border: 1px solid #86efac; }
-        .badge-danger { background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; }
-
-        /* --- EMPTY STATE --- */
-        .empty-state { text-align: center; padding: 60px 20px; }
-        .empty-state i { font-size: 4rem; color: #cbd5e1; margin-bottom: 20px; }
-        .empty-state h3 { font-size: 1.3rem; color: var(--text-main); margin-bottom: 10px; }
-        .empty-state p { color: var(--text-muted); margin-bottom: 25px; }
-
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Mobile Adjustments */
-        @media (max-width: 768px) { 
-            .profile-header { flex-direction: column; text-align: center; }
-            .navbar { flex-direction: column; gap: 15px; padding: 20px; }
-            th, td { padding: 15px; }
-            .hide-mobile { display: none; } 
-        }
+        .badge-safe { background: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-danger { background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
     </style>
 </head>
 <body>
-
     <div class="navbar">
         <a href="/" class="brand-logo"><i class="fas fa-heartbeat"></i> HeartGuard AI</a>
-        <div class="nav-links">
+        <div>
             <a href="/" class="nav-btn"><i class="fas fa-chart-line"></i> New Analysis</a>
-            <a href="/logout" class="nav-btn nav-btn-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            <a href="/logout" class="nav-btn" style="color:#f87171;"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>
     </div>
 
@@ -138,60 +46,40 @@
         <div class="profile-header">
             <div class="avatar"><i class="fas fa-user-md"></i></div>
             <div class="profile-info">
-                <h1>Dr. / Assessor {{ name }}</h1>
-                <p><i class="fas fa-shield-alt" style="color:var(--success);"></i> Secured Medical Records Access</p>
+                <h1>Assessor {{ name }}</h1>
+                <p style="color:var(--text-muted);"><i class="fas fa-shield-alt" style="color:var(--success);"></i> Secured Medical Records Access</p>
             </div>
         </div>
 
         <div class="history-card">
-            <div class="card-header">
-                <i class="fas fa-folder-open" style="color: var(--brand-primary); font-size: 1.2rem;"></i>
-                <h3>Patient Analysis Database</h3>
-            </div>
-            
+            <div class="card-header"><h3 style="color:var(--text-main);"><i class="fas fa-folder-open" style="color:var(--brand-primary);"></i> Patient Database</h3></div>
             {% if history %}
-            <div class="table-responsive">
+            <div style="overflow-x:auto;">
                 <table>
-                    <thead>
-                        <tr>
-                            <th>Date & Time</th>
-                            <th>Patient Name</th>
-                            <th>Clinical Result</th>
-                            <th class="hide-mobile">Resting BP</th>
-                            <th class="hide-mobile">Age</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Date & Time</th><th>Patient Name</th><th>Result</th><th>BP</th><th>Age</th></tr></thead>
                     <tbody>
                         {% for row in history %}
                         <tr>
+                            <td style="color:var(--text-muted);">{{ row[0] }}</td>
+                            <td style="font-weight:600; color:var(--brand-primary);">{{ row[1] }}</td> 
                             <td>
-                                <div class="date-text"><i class="far fa-calendar-alt"></i> {{ row[0] }}</div>
+                                {% if 'High' in row[2] %}<span class="badge badge-danger"><i class="fas fa-exclamation-triangle"></i> High Risk</span>
+                                {% else %}<span class="badge badge-safe"><i class="fas fa-check-circle"></i> Low Risk</span>{% endif %}
                             </td>
-                            <td class="patient-name">{{ row[1] }}</td> 
-                            <td>
-                                {% if 'High' in row[2] %}
-                                    <span class="badge badge-danger"><i class="fas fa-exclamation-triangle"></i> High Risk</span>
-                                {% else %}
-                                    <span class="badge badge-safe"><i class="fas fa-check-circle"></i> Low Risk</span>
-                                {% endif %}
-                            </td>
-                            <td class="hide-mobile">{{ row[4] }} <span style="font-size: 0.8rem; color: #94a3b8;">mmHg</span></td> 
-                            <td class="hide-mobile">{{ row[3] }} <span style="font-size: 0.8rem; color: #94a3b8;">Yrs</span></td> 
+                            <td>{{ row[4] }}</td> <td>{{ row[3] }}</td> 
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
             {% else %}
-                <div class="empty-state">
-                    <i class="fas fa-box-open"></i>
-                    <h3>No Patient Records Found</h3>
-                    <p>You haven't run any clinical risk predictions yet.</p>
-                    <a href="/" class="nav-btn" style="display: inline-flex; background: var(--brand-primary); color: white; border: none;"><i class="fas fa-plus"></i> Run First Analysis</a>
+                <div style="text-align:center; padding: 60px;">
+                    <i class="fas fa-box-open" style="font-size:3rem; color:#334155; margin-bottom:20px;"></i>
+                    <h3 style="color:var(--text-main);">No Records Found</h3>
+                    <p style="color:var(--text-muted);">You haven't run any predictions yet.</p>
                 </div>
             {% endif %}
         </div>
     </div>
-
 </body>
 </html>
