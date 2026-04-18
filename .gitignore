@@ -1,0 +1,10 @@
+.env
+__pycache__/
+*.py[cod]
+*.db
+*.pkl
+instance/
+venv/
+env/
+.venv/
+heart_data.db
