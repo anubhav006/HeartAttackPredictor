@@ -1,78 +1,63 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_sqlalchemy import SQLAlchemy
+import sqlite3
 import pickle
 import numpy as np
 from datetime import datetime
 import os
-from dotenv import load_dotenv
-
-load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "super_secure_heartguard_key_123")
-
-# Database configuration for Render PostgreSQL
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///heart_data.db")
-app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-MODEL_PATH = os.getenv("MODEL_PATH", "heart_attack_model.pkl")
-DEBUG_MODE = os.getenv("FLASK_DEBUG", "True").lower() in ("1", "true", "yes")
-
-app.config["MODEL_PATH"] = MODEL_PATH
-app.config["DEBUG"] = DEBUG_MODE
-
-# Initialize SQLAlchemy
-db = SQLAlchemy(app)
-
-# --- DATABASE MODELS ---
-class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(150), unique=True, nullable=False)
-    password_hash = db.Column(db.String(150), nullable=False)
-    predictions = db.relationship('Prediction', backref='user', lazy=True)
-
-class Prediction(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    timestamp = db.Column(db.String(50), nullable=False)
-    patient_name = db.Column(db.String(100), nullable=False)
-    age = db.Column(db.Float, nullable=False)
-    sex = db.Column(db.Float, nullable=False)
-    cp = db.Column(db.Float, nullable=False)
-    trestbps = db.Column(db.Float, nullable=False)
-    chol = db.Column(db.Float, nullable=False)
-    fbs = db.Column(db.Float, nullable=False)
-    restecg = db.Column(db.Float, default=0.0)
-    thalach = db.Column(db.Float, nullable=False)
-    exang = db.Column(db.Float, default=0.0)
-    oldpeak = db.Column(db.Float, default=0.0)
-    slope = db.Column(db.Float, default=2.0)
-    ca = db.Column(db.Float, default=0.0)
-    thal = db.Column(db.Float, default=2.0)
-    prediction_result = db.Column(db.String(50), nullable=False)
+app.secret_key = 'super_secure_heartguard_key_123'
 
 # --- FLASK LOGIN SETUP ---
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+class User(UserMixin):
+    def __init__(self, id, username):
+        self.id = id
+        self.username = username
+
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    conn = sqlite3.connect('heart_data.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, username FROM users WHERE id = ?", (user_id,))
+    user_data = cursor.fetchone()
+    conn.close()
+    if user_data:
+        return User(id=user_data[0], username=user_data[1])
+    return None
 
 # --- DATABASE INITIALIZATION ---
 def init_db():
-    with app.app_context():
-        db.create_all()
+    conn = sqlite3.connect('heart_data.db')
+    cursor = conn.cursor()
+    cursor.execute('''CREATE TABLE IF NOT EXISTS users (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        username TEXT UNIQUE NOT NULL,
+                        password_hash TEXT NOT NULL)''')
+    
+    cursor.execute('''CREATE TABLE IF NOT EXISTS predictions (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        user_id INTEGER,
+                        timestamp TEXT,
+                        patient_name TEXT,
+                        age REAL, sex REAL, cp REAL, trestbps REAL, chol REAL, 
+                        fbs REAL, restecg REAL, thalach REAL, exang REAL, 
+                        oldpeak REAL, slope REAL, ca REAL, thal REAL,
+                        prediction_result TEXT,
+                        FOREIGN KEY(user_id) REFERENCES users(id))''')
+    conn.commit()
+    conn.close()
 
 init_db()
 
 # --- LOAD ML MODEL ---
 try:
-    model = pickle.load(open(app.config["MODEL_PATH"], 'rb'))
+    model = pickle.load(open('heart_attack_model.pkl', 'rb'))
     print("Model loaded successfully!")
 except Exception as e:
     print("Warning: Model file not found. Ensure 'heart_attack_model.pkl' is in the folder.")
@@ -90,10 +75,15 @@ def login():
         username = request.form['username']
         password = request.form['password']
         
-        user = User.query.filter_by(username=username).first()
-        
-        if user and check_password_hash(user.password_hash, password):
-            login_user(user)
+        conn = sqlite3.connect('heart_data.db')
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, username, password_hash FROM users WHERE username = ?", (username,))
+        user = cursor.fetchone()
+        conn.close()
+
+        if user and check_password_hash(user[2], password):
+            user_obj = User(id=user[0], username=user[1])
+            login_user(user_obj)
             return redirect(url_for('home'))
         else:
             flash('Invalid username or password', 'error')
@@ -107,14 +97,16 @@ def register():
     password = request.form['password']
     hashed_password = generate_password_hash(password)
 
+    conn = sqlite3.connect('heart_data.db')
+    cursor = conn.cursor()
     try:
-        new_user = User(username=username, password_hash=hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
+        cursor.execute("INSERT INTO users (username, password_hash) VALUES (?, ?)", (username, hashed_password))
+        conn.commit()
         flash('Account created successfully! Please log in.', 'success')
-    except:
-        db.session.rollback()
+    except sqlite3.IntegrityError:
         flash('Username already exists. Try another one.', 'error')
+    finally:
+        conn.close()
     return redirect(url_for('login'))
 
 @app.route('/logout')
@@ -126,8 +118,11 @@ def logout():
 @app.route('/profile')
 @login_required
 def profile():
-    predictions = Prediction.query.filter_by(user_id=current_user.id).order_by(Prediction.id.desc()).all()
-    history = [(p.timestamp, p.patient_name, p.prediction_result, p.age, p.trestbps) for p in predictions]
+    conn = sqlite3.connect('heart_data.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT timestamp, patient_name, prediction_result, age, trestbps FROM predictions WHERE user_id = ? ORDER BY id DESC", (current_user.id,))
+    history = cursor.fetchall()
+    conn.close()
     return render_template('profile.html', name=current_user.username, history=history)
 
 @app.route('/predict', methods=['POST'])
@@ -181,18 +176,15 @@ def predict():
 
         # Save to DB
         if current_user.is_authenticated:
+            conn = sqlite3.connect('heart_data.db')
+            cursor = conn.cursor()
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            prediction = Prediction(
-                user_id=current_user.id,
-                timestamp=timestamp,
-                patient_name=patient_name,
-                age=age, sex=sex, cp=cp, trestbps=trestbps, chol=chol, 
-                fbs=fbs, restecg=1.0, thalach=thalach, exang=0.0, 
-                oldpeak=0.0, slope=2.0, ca=0.0, thal=2.0,
-                prediction_result=result
-            )
-            db.session.add(prediction)
-            db.session.commit()
+            cursor.execute('''INSERT INTO predictions 
+                              (user_id, timestamp, patient_name, age, sex, cp, trestbps, chol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal, prediction_result) 
+                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                           (current_user.id, timestamp, patient_name, age, sex, cp, trestbps, chol, fbs, 0.0, thalach, 0.0, 0.0, 0.0, 0.0, 0.0, result))
+            conn.commit()
+            conn.close()
 
         return jsonify({'prediction_text': result})
 
@@ -201,4 +193,4 @@ def predict():
         return jsonify({'prediction_text': "Error processing data"}), 400
 
 if __name__ == '__main__':
-    app.run(debug=app.config["DEBUG"])
+    app.run(debug=True)
